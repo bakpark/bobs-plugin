@@ -1,0 +1,15 @@
+{
+  "name": "bobs-plugin",
+  "owner": {
+    "name": "bakpark",
+    "email": "bakparkbj@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "bobs-plugin",
+      "source": "./plugins/bobs-plugin",
+      "description": "Auditor + designer + harness-resource-design, with vendored skill-creator, claude-automation-recommender, and claude-md-improver (Apache-2.0).",
+      "version": "0.1.0"
+    }
+  ]
+}
