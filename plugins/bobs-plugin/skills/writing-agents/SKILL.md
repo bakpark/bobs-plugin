@@ -16,7 +16,7 @@ You write test cases (pressure scenarios with dispatch), watch them fail (baseli
 
 **REQUIRED BACKGROUND:** You MUST understand `superpowers:test-driven-development` and `writing-skills` before using this skill. TDD defines the RED-GREEN-REFACTOR cycle; `writing-skills` adapts it to skill documentation. This skill is the same adaptation, applied to subagent `.md` files — covering both the *discipline* (TDD, anti-patterns, rationalizations) AND the *procedural workflow* (intent capture → frontmatter → body → write → validate → iterate).
 
-**Official guidance:** For Anthropic's subagent recommendation patterns, see `claude-automation-recommender/references/subagent-templates.md`. For local normative rules (MUST/MUST NOT/SHOULD/MAY for agents), see `bobs-plugin/references/agent-skill-best-practices-GUIDE.md` §5.2 / §6 / §7.3 / §11.2.
+**Official guidance:** For Anthropic's subagent recommendation patterns, see `claude-automation-recommender/references/subagent-templates.md`. For local normative rules — `bobs-plugin/references/agent-skill-best-practices/CONSTITUTION.md` (공통 헌법) + `AGENT-GUIDE.md` (에이전트 작성 규칙 전문). Quick rule-ID index: `bobs-plugin/skills/harness-resource-design/references/guide-rule-map.md`.
 
 ## What is an Agent?
 
@@ -584,11 +584,11 @@ Use names only, with explicit requirement markers:
 - ❌ `@plugins/.../some-agent.md` — force-loads, burns context
 - ❌ `See some-file in some-folder` — unclear if required
 
-When citing local normative rules, cite the GUIDE section, not the line number:
-- ✅ `per GUIDE §5.2 A-X1`
+When citing local normative rules, cite the guide file + section, not the line number:
+- ✅ `per AGENT-GUIDE §6.1 Tools` or `per guide-rule-map A-X1`
 - ❌ `per GUIDE.md:332`
 
-Line numbers drift; section IDs are stable.
+Line numbers drift; section names and rule IDs are stable.
 
 ## Iteration Playbook (Drift Symptom → Fix)
 

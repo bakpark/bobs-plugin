@@ -1,7 +1,7 @@
 ---
 name: harness-resource-design
 description: |-
-  Reference material only for agent-skill-designer or the main session after a Claude harness resource design task is already underway. Contains local GUIDE-based decision rules for choosing resource type, drafting contracts, and avoiding unsafe automation across skills, subagents, hooks, plugins, and workflow clusters. Do not use as the primary responder when subagent design delegation is available.
+  Reference material only for agent-skill-designer or the main session after a Claude harness resource design task is already underway. Contains a rule-map index plus per-type guides (CONSTITUTION / SKILL-GUIDE / AGENT-GUIDE / HOOK-GUIDE) for choosing resource type, drafting contracts, and avoiding unsafe automation across skills, subagents, hooks, plugins, and workflow clusters. Do not use as the primary responder when subagent design delegation is available.
 ---
 
 # harness-resource-design
@@ -34,7 +34,7 @@ description: |-
 3. `guide-rule-map.md` 로 필수 규칙과 안티패턴을 대조한다.
 4. 자원 타입별 세부 reference 를 하나만 선택해 읽는다.
 5. 설계 산출물을 만든다: frontmatter 초안, 책임 경계, input/output contract, negative cases, migration order.
-6. 구현 전 검증 방법을 명시한다. 정적 규칙 검사는 `agent-skill-auditor`, 스킬 작성 자체는 플러그인 `skill-creator` 원칙을 따른다.
+6. 구현 전 검증 방법을 명시한다. 정적 규칙 검사는 `agent-skill-auditor`, 스킬 작성 자체는 플러그인 `writing-skills` (스킬) / `writing-agents` (에이전트) 원칙을 따른다.
 
 ## When NOT To Use
 
@@ -44,7 +44,7 @@ description: |-
 
 ## References
 
-- `references/guide-rule-map.md`: GUIDE §5-§8 압축 규칙, 임계값, 안티패턴.
+- `references/guide-rule-map.md`: rule-ID 인덱스 + 임계값 + 안티패턴. 원문 가이드 (CONSTITUTION / SKILL-GUIDE / AGENT-GUIDE / HOOK-GUIDE) 의 압축본.
 - `references/skill-patterns.md`: 스킬 설계, progressive disclosure, references 배치, invocation control.
 - `references/agent-patterns.md`: 에이전트 description, tools/model, output contract, 책임 분리.
 - `references/hook-patterns.md`: hook 이벤트 선택, matcher, failure behavior, routing hints.
@@ -64,4 +64,4 @@ description: |-
 
 - 이 스킬은 설계 지침이다. 파일 수정은 호출자가 수행한다.
 - research 디렉토리의 원본 skill/agent를 그대로 복제하지 않는다.
-- GUIDE 전문을 매번 읽지 않는다. 필요하면 `guide-rule-map.md` 를 먼저 읽고, 원문 확인이 필요한 규칙만 플러그인 동봉본 `${CLAUDE_PLUGIN_ROOT}/references/agent-skill-best-practices-GUIDE.md` 에서 확인한다.
+- 가이드 전문을 매번 읽지 않는다. 먼저 `guide-rule-map.md` 를 읽고, 원문이 필요한 규칙만 `${CLAUDE_PLUGIN_ROOT}/references/agent-skill-best-practices/{CONSTITUTION,SKILL-GUIDE,AGENT-GUIDE,HOOK-GUIDE}.md` 에서 확인한다.

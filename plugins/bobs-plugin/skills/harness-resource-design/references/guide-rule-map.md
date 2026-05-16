@@ -1,8 +1,12 @@
 # GUIDE Rule Map
 
-원본: `${CLAUDE_PLUGIN_ROOT}/references/agent-skill-best-practices-GUIDE.md` (snapshot — refresh by re-copying from research source and bumping plugin version).
+원본: `${CLAUDE_PLUGIN_ROOT}/references/agent-skill-best-practices/{CONSTITUTION,SKILL-GUIDE,AGENT-GUIDE,HOOK-GUIDE}.md` (v2 modular guide). 본 파일은 그 가이드들의 rule-ID 인덱스이자 압축본이다. 충돌 시 원문 가이드가 우선한다.
 
-이 파일은 설계 시 자주 쓰는 규칙만 압축한다. 원문과 충돌하면 원문이 우선한다.
+규칙 ID 매핑:
+- S- prefix → `SKILL-GUIDE.md`
+- A- prefix → `AGENT-GUIDE.md`
+- H- prefix → `HOOK-GUIDE.md`
+- 공통 원칙 → `CONSTITUTION.md`
 
 ## Constitution
 
