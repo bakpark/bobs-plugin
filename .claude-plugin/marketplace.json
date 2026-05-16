@@ -8,8 +8,8 @@
     {
       "name": "bobs-plugin",
       "source": "./plugins/bobs-plugin",
-      "description": "Auditor + designer + harness-resource-design + writing-agents, with vendored claude-automation-recommender, claude-md-improver (Apache-2.0), and writing-skills (MIT).",
-      "version": "0.1.2"
+      "description": "Auditor + designer + harness-resource-design + writing-agents + skill-creator, with vendored claude-automation-recommender, claude-md-improver (Apache-2.0), and writing-skills (MIT).",
+      "version": "0.1.3"
     }
   ]
 }

@@ -16,7 +16,7 @@ You write test cases (pressure scenarios with dispatch), watch them fail (baseli
 
 **REQUIRED BACKGROUND:** You MUST understand `superpowers:test-driven-development` and `writing-skills` before using this skill. TDD defines the RED-GREEN-REFACTOR cycle; `writing-skills` adapts it to skill documentation. This skill is the same adaptation, applied to subagent `.md` files — covering both the *discipline* (TDD, anti-patterns, rationalizations) AND the *procedural workflow* (intent capture → frontmatter → body → write → validate → iterate).
 
-**Official guidance:** For Anthropic's subagent recommendation patterns, see `claude-automation-recommender/references/subagent-templates.md`. For local normative rules — `bobs-plugin/references/agent-skill-best-practices/CONSTITUTION.md` (공통 헌법) + `AGENT-GUIDE.md` (에이전트 작성 규칙 전문). Quick rule-ID index: `bobs-plugin/skills/harness-resource-design/references/guide-rule-map.md`.
+**Official guidance:** For Anthropic's subagent recommendation patterns, see `claude-automation-recommender/references/subagent-templates.md`. For local normative rules — `bobs-plugin/references/CONSTITUTION.md` (공통 헌법) + `AGENT-GUIDE.md` (에이전트 작성 규칙 전문). Quick rule-ID index: `bobs-plugin/skills/harness-resource-design/references/guide-rule-map.md`.
 
 ## What is an Agent?
 

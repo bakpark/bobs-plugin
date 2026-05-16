@@ -64,4 +64,4 @@ description: |-
 
 - 이 스킬은 설계 지침이다. 파일 수정은 호출자가 수행한다.
 - research 디렉토리의 원본 skill/agent를 그대로 복제하지 않는다.
-- 가이드 전문을 매번 읽지 않는다. 먼저 `guide-rule-map.md` 를 읽고, 원문이 필요한 규칙만 `${CLAUDE_PLUGIN_ROOT}/references/agent-skill-best-practices/{CONSTITUTION,SKILL-GUIDE,AGENT-GUIDE,HOOK-GUIDE}.md` 에서 확인한다.
+- 가이드 전문을 매번 읽지 않는다. 먼저 `guide-rule-map.md` 를 읽고, 원문이 필요한 규칙만 `${CLAUDE_PLUGIN_ROOT}/references/{CONSTITUTION,SKILL-GUIDE,AGENT-GUIDE,HOOK-GUIDE}.md` 에서 확인한다.
