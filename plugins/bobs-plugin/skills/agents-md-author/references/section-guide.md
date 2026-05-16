@@ -4,7 +4,7 @@
 
 ## Normative source
 
-`${CLAUDE_PLUGIN_ROOT}/references/harness-engineering.md` §4.1 표 발췌:
+`${CLAUDE_PLUGIN_ROOT}/references/harness-principles.md` §4.1 표 발췌:
 
 | 문서 | 1차 독자 | 핵심 역할 | 포함할 것 | 포함하지 않을 것 |
 |---|---|---|---|---|

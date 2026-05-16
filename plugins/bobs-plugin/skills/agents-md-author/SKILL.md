@@ -8,7 +8,7 @@ description: |-
 
 프로젝트 루트의 `AGENTS.md` 를 만들고 다듬는 절차 스킬. `AGENTS.md` 는 도구를 가리지 않는 코딩 에이전트 공통 작업 계약이다 — Codex, Claude, Gemini, Cursor 등이 작업 시 가장 먼저 읽는 파일.
 
-핵심 책임 분리는 `harness-engineering` 자산 모델 §4.1 표를 그대로 따른다:
+핵심 책임 분리는 `harness-principles` 자산 모델 §4.1 표를 그대로 따른다:
 
 | 파일 | 1차 독자 | 핵심 역할 |
 |---|---|---|
@@ -147,8 +147,8 @@ duplication_report: <중복 발견 / 없음>
 ## References
 
 - `references/template.md` — 8개 섹션 골격 (그대로 시작용으로 복사 가능)
-- `references/section-guide.md` — 섹션별 포함 / 제외 기준 + harness-engineering §4.1 표 발췌
+- `references/section-guide.md` — 섹션별 포함 / 제외 기준 + harness-principles §4.1 표 발췌
 
-Normative source: `${CLAUDE_PLUGIN_ROOT}/references/harness-engineering.md` §4.1 (`README.md` / `AGENTS.md` / `CLAUDE.md` 역할 분리), §5.7 (1차 MVP 생성 순서).
+Normative source: `${CLAUDE_PLUGIN_ROOT}/references/harness-principles.md` §4.1 (`README.md` / `AGENTS.md` / `CLAUDE.md` 역할 분리), §5.7 (1차 MVP 생성 순서).
 
 본 스킬은 본문에 표준 규칙을 복사하지 않는다 — *어디서 무엇을 읽고 어떻게 작성·검증할지* 만 정의한다.

@@ -6,7 +6,7 @@ description: |-
 
 # context-map-builder
 
-`docs/agent/context-map.md` 를 만들고 갱신하는 절차 스킬. context-map 은 *작업 유형 → 우선 역할 → 먼저 볼 문서 → 사용할 skill → 관여 hook* 매핑 표로, `harness-engineering` 자산 모델 §4.5 가 "에이전트 환경에서 가장 중요한 인덱스 문서" 로 규정한다.
+`docs/agent/context-map.md` 를 만들고 갱신하는 절차 스킬. context-map 은 *작업 유형 → 우선 역할 → 먼저 볼 문서 → 사용할 skill → 관여 hook* 매핑 표로, `harness-principles` 자산 모델 §4.5 가 "에이전트 환경에서 가장 중요한 인덱스 문서" 로 규정한다.
 
 본 스킬의 출력은 표 1개와 그 표를 읽는 방법 — 자원 자체를 만들거나 역할을 정의하지 않는다.
 
@@ -150,6 +150,6 @@ follow_ups:
 - `references/template.md` — context-map.md 골격 (표 헤더 + 빈 행 + 사용 안내 텍스트)
 - `references/inventory-guide.md` — 자원 inventory 절차 (skill / agent / hook / doc 스캔 방법)
 
-Normative source: `${CLAUDE_PLUGIN_ROOT}/references/harness-engineering.md` §4.5 (Context Map: 구성요소를 연결하는 라우터), §4.7 (자산 선택 기준). `${CLAUDE_PLUGIN_ROOT}` 미설정 환경에서는 현재 SKILL.md 기준 `../../references/` 를 fallback 으로 사용한다 (plugin 디렉토리 구조 가정).
+Normative source: `${CLAUDE_PLUGIN_ROOT}/references/harness-principles.md` §4.5 (Context Map: 구성요소를 연결하는 라우터), §4.7 (자산 선택 기준). `${CLAUDE_PLUGIN_ROOT}` 미설정 환경에서는 현재 SKILL.md 기준 `../../references/` 를 fallback 으로 사용한다 (plugin 디렉토리 구조 가정).
 
 본 스킬은 본문에 규칙을 복사하지 않는다 — *어디서 무엇을 수집하고 어떻게 매핑·검증·기록할지* 만 정의한다.
