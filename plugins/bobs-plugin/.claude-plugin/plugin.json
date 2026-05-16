@@ -1,6 +1,6 @@
 {
   "name": "bobs-plugin",
-  "description": "Bob's bundle for Claude harness work: agent-skill-auditor + agent-skill-designer + harness-resource-design + writing-agents + skill-creator (with the agent-skill-best-practices GUIDE), plus vendored claude-automation-recommender, claude-md-improver, and writing-skills.",
+  "description": "Bob's bundle for Claude harness work: agent-skill-auditor + agent-skill-designer + harness-resource-design + skill-creator + agent-creator + hook-creator (with the agent-skill-best-practices GUIDE), plus vendored claude-automation-recommender, claude-md-improver, and writing-skills.",
   "version": "0.1.3",
   "author": {
     "name": "bakpark",

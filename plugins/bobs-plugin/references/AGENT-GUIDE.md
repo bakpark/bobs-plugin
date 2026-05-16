@@ -379,3 +379,9 @@ Frontmatter:
 | Hidden mutation | advisory 역할인데 파일 수정 | role 과 tools 를 정렬 |
 | Project convention leak | 특정 프로젝트 style 하드코딩 | CLAUDE.md 참조로 전환 |
 | Unintentional duplicate | 비슷한 agent 간 차이가 없음 | trigger/scope/output 분리 또는 통합 |
+| Always-opus | 모든 에이전트가 `model: opus` — 비용·지연 누적 | `sonnet` 기본, 정당화 가능할 때만 `opus` 승격 |
+| Orchestrator agent | 본문에서 다른 에이전트를 dispatch | orchestration 을 caller (skill / main session) 로 이동 |
+| Persona drift mid-body | 본문 시작과 후반의 책임이 다름 — 한 파일에 두 역할 | persona 별로 분리, 각자 단일 책임 |
+| Auto-merge generator | 코드 생성 + commit + push 까지 단일 에이전트 | generator 는 diff 만 산출, commit·push 결정은 caller |
+| No negative case | description 에 positive trigger 만 있음 — 라우팅 모호 | sibling 명시한 `Do NOT use for …` ≥1 추가 |
+| Multi-language persona | 본문이 섹션마다 언어 변경 — 출력 형식 불안정 | 본문 단일 언어, 다국어는 description trigger 에만 |

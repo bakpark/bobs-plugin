@@ -1,6 +1,8 @@
-# Testing Agents With Subagents
+# Pressure Scenarios — Full RED-GREEN-REFACTOR Library for Agents
 
-The full RED-GREEN-REFACTOR methodology for subagent (.md) definitions. Read this when you've drafted an agent and want to bulletproof it before merging.
+> 본 파일은 `agent-creator` 가 §When the loop stalls 의 보조 도구로 참조하는 *심화* pressure test 절차다. 축약본은 `red-green-refactor.md`. 본 파일은 self-contained — 별도 reference 없이 그대로 실행 가능하다.
+
+The full RED-GREEN-REFACTOR methodology for subagent (`.md`) definitions. Read this when you've drafted an agent and want to bulletproof it before merging.
 
 ## Overview
 

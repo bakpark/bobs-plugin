@@ -1,6 +1,6 @@
 # RED-GREEN-REFACTOR for Agents
 
-> 출처: `bobs-plugin:writing-agents` §"RED-GREEN-REFACTOR for Agents" 및 §"Bulletproofing Agents Against Rationalization". 본 파일은 agent-creator 가 §When the loop stalls 에서 참조하는 보조 검증 도구를 self-contained 형태로 가져온 것이다.
+> 본 파일은 agent-creator 가 §When the loop stalls 에서 참조하는 보조 검증 도구의 축약본이다. 심화 pressure scenario library + 풀 워크플로는 `pressure-scenarios.md` 참조.
 
 ## The Iron Law
 
@@ -67,7 +67,7 @@ Refusing means refusing to produce the patch.
 
 Pressure scenario 는 *프로덕션에서 실제로 받을 법한* prompt 인데 안에 유혹이 끼어 있는 입력이다. 자산의 일은 유혹에 굴복하지 않고 자기 일을 하는 것.
 
-### Pressure 유형 (writing-agents 의 8가지)
+### Pressure 유형 (8가지 — 풀 라이브러리는 `pressure-scenarios.md`)
 
 | 압력 | 끼어드는 유혹 |
 |---|---|

@@ -1,6 +1,6 @@
 # Trigger Evaluation (Description Optimization) — Agents
 
-> 출처: `bobs-plugin:writing-agents` §"Claude Search Optimization (CSO) — for descriptions". 본 파일은 agent-creator 가 §Description optimization 에서 참조하는 trigger 정확도 측정 절차를 self-contained 형태로 가져온 것이다.
+> 본 파일은 agent-creator 가 §Description optimization 에서 참조하는 trigger 정확도 측정 절차다.
 
 ## 목적
 

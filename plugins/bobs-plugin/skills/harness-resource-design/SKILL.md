@@ -34,7 +34,7 @@ description: |-
 3. `guide-rule-map.md` 로 필수 규칙과 안티패턴을 대조한다.
 4. 자원 타입별 세부 reference 를 하나만 선택해 읽는다.
 5. 설계 산출물을 만든다: frontmatter 초안, 책임 경계, input/output contract, negative cases, migration order.
-6. 구현 전 검증 방법을 명시한다. 정적 규칙 검사는 `agent-skill-auditor`, 스킬 작성 자체는 플러그인 `writing-skills` (스킬) / `writing-agents` (에이전트) 원칙을 따른다.
+6. 구현 전 검증 방법을 명시한다. 정적 규칙 검사는 `agent-skill-auditor`, 자원 작성 절차는 플러그인 `skill-creator` (스킬) / `agent-creator` (에이전트) / `hook-creator` (훅) 를 따른다 (discipline 깊이는 vendored `writing-skills` 참조).
 
 ## When NOT To Use
 
