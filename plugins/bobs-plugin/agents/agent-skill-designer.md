@@ -28,6 +28,7 @@ color: blue
 - "위반 여부, 점수, metrics, GUIDE rule ID, 정적 감사" → `agent-skill-auditor`.
 - "무엇을 만들지, 어떻게 나눌지, 어떤 contract 로 갈지, 어떤 순서로 이전할지" → 본 에이전트.
 - "실제 SKILL.md 작성·수정" → main session 이 플러그인 `skill-creator` 원칙으로 수행.
+- "실제 에이전트 `.md` 작성·수정·개선" → main session 이 플러그인 `writing-agents` 스킬로 수행.
 - "설계 기준 확인" → 본 에이전트가 `harness-resource-design` 을 참고자료로 사용.
 
 ## 1. 입력
