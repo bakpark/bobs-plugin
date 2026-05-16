@@ -1,5 +1,7 @@
 # Harness Principles
 
+> 본 문서는 하네스의 **개념 모델** 만 정의한다. 실제 *이식 워크플로우* (진단 → 설계 → 실행 → 사이클) 는 `harness-installation-workflow.md` 를 참고.
+
 ## 1. 배경
 
 하네스에서 중요한 것은 다음과 같다.
