@@ -1,6 +1,7 @@
-# 훅 작성 가이드 v2
+# 훅 작성 가이드 v2.1
 
 생성: 2026-05-16
+개정: 2026-05-17
 상위 원칙: `CONSTITUTION.md`
 성격: 훅 설계와 등록을 위한 타입별 실무 가이드
 
@@ -28,19 +29,22 @@
 
 ---
 
-## 2. Hook vs Skill vs Agent
+## 2. Hook vs Command vs Skill vs Agent
 
 | 필요 | 선택 |
 |---|---|
 | 매 이벤트마다 자동 보장 | 훅 |
 | 파일 수정 전 차단 | PreToolUse 훅 |
 | 파일 수정 후 포맷·검증 | PostToolUse 훅 |
+| 사용자 명시 호출 workflow | 커맨드 |
 | 반복 가능한 판단 절차 | 스킬 |
 | 별도 컨텍스트 specialist 분석 | 에이전트 |
 | 프로젝트 고유 규칙 | CLAUDE.md |
+| 권한, MCP, memory, budget 정책 | 런타임 설정 |
 
 간단한 기준:
 - 보장이 필요하면 훅.
+- 사용자가 시작하는 workflow 면 커맨드.
 - 방법론이 필요하면 스킬.
 - 역할 분리가 필요하면 에이전트.
 - 프로젝트 memory 가 필요하면 CLAUDE.md.
@@ -82,6 +86,7 @@
 | `UserPromptSubmit` | 사용자 prompt 제출 시 | 짧은 routing hint, context 주입 |
 | `SessionStart` | session 시작 시 | cwd/project summary, 활성 자원 hint |
 | `Notification` | notification 발생 시 | permission/idle 알림, 외부 알림 |
+| `PermissionRequest` | 권한 요청 시 | 감사, 정책 안내, 매우 제한된 승인/거부 |
 
 선택 기준:
 - 차단이 목적이면 `PreToolUse`.
@@ -89,6 +94,7 @@
 - prompt 해석을 돕는 짧은 context 면 `UserPromptSubmit`.
 - 세션 전체에 필요한 context 면 `SessionStart`.
 - 사람에게 알려야 하는 이벤트면 `Notification`.
+- 권한 요청 패턴 관측이면 `PermissionRequest`. 자동 승인은 별도 정책 없이는 사용하지 않는다.
 
 ---
 
@@ -322,7 +328,60 @@ exit 0
 
 주의: routing hint 는 짧아야 한다. 긴 자원 목록 전체를 매 prompt 에 주입하면 context 비용이 커진다.
 
-### 10.5 Auto-Loop Trigger (자기 재호출)
+### 10.5 On-Demand / Skill-Scoped Hook
+
+항상 켜진 hook 이 아니라 특정 skill, command, 또는 사용자 opt-in 중에만 강해지는 hook 이 더 안전할 수 있다.
+
+적합한 경우:
+- 위험한 refactor 중 민감 파일 edit 를 더 엄격히 막는다.
+- 배포 runbook 실행 중 특정 command 만 추가 감사한다.
+- product verification skill 실행 중 browser trace 나 artifact 를 수집한다.
+- 사용자가 `/careful`, `/freeze` 같은 모드를 명시 호출했을 때 blocker 를 강화한다.
+
+필수 원칙:
+- 기본은 no-op 이다.
+- opt-in state 의 위치와 cleanup 이 명확해야 한다.
+- hook 이 어떤 skill/command 에 의해 켜졌는지 로그에 남긴다.
+- opt-in 종료 또는 session 종료 시 원래 정책으로 돌아간다.
+
+이 패턴은 broad always-on blocker 를 줄이는 방법이지, 숨은 자동화를 늘리는 방법이 아니다.
+
+### 10.6 Usage Measurement
+
+훅은 자산 사용량을 관측하는 데도 쓸 수 있다.
+
+측정할 수 있는 것:
+- 어떤 skill/command/agent 가 자주 호출되는가?
+- description 은 있지만 실제 호출되지 않는 dead asset 이 있는가?
+- 사용자가 매번 수동으로 반복하는 작업이 있어 skill/command 승격이 필요한가?
+- 특정 hook 이 false positive 를 많이 만드는가?
+
+원칙:
+- 개인 prompt 전문이나 file content 를 로그하지 않는다.
+- user/project/session 식별자는 최소화하거나 익명화한다.
+- 로그 위치, 보존 기간, cleanup 을 정한다.
+- 측정 결과는 asset lifecycle 판단에만 사용하고 자동 권한 상승 근거로 쓰지 않는다.
+
+### 10.7 PermissionRequest Policy Hook
+
+권한 요청 hook 은 위험도가 높다.
+
+허용되는 기본 용도:
+- 권한 요청을 로컬 audit log 에 남긴다.
+- 위험한 command family 에 대해 짧은 policy reminder 를 출력한다.
+- 조직 정책상 명확히 금지된 요청을 차단한다.
+
+자동 승인 조건:
+- 명시 opt-in 이 있다.
+- 승인 가능한 command pattern 이 좁다.
+- deny/block list 가 우선한다.
+- audit log 가 남는다.
+- classifier 실패 시 fail closed 한다.
+- 사용자가 쉽게 끌 수 있다.
+
+위 조건이 없으면 PermissionRequest hook 은 advisory 또는 blocking-only 로 둔다.
+
+### 10.8 Auto-Loop Trigger (자기 재호출)
 
 `Stop` 훅이 session 종료를 막고 동일 prompt 를 재주입하는 패턴은 모델 비용, 시간, side-effect 누적이 빠르게 커지므로 위험 카테고리다. 사용하려면 다층 gate 가 필요하다.
 
@@ -336,7 +395,7 @@ exit 0
 
 이 패턴은 권장이 아니라 예외 디자인이다. 위 요건 중 하나라도 빠지면 destructive automation 으로 분류한다.
 
-### 10.6 Session-Scoped State Files
+### 10.9 Session-Scoped State Files
 
 훅이 dedup, rate-limit, iteration count 같은 상태를 디스크에 남길 때 lifecycle 을 결정론적으로 정의한다.
 
@@ -397,6 +456,8 @@ state 가 누적되면 디스크 비용과 디버깅 비용이 모두 커진다.
 - [ ] false positive 발생 시 수정 절차가 있는가?
 - [ ] 호출 빈도와 지연을 관찰할 수 있는가?
 - [ ] 프로젝트별 도구가 없을 때 조용히 no-op 되는가?
+- [ ] on-demand hook 이라면 opt-in/cleanup 이 명확한가?
+- [ ] usage measurement 가 privacy 와 retention 을 지키는가?
 
 ---
 
@@ -416,8 +477,10 @@ state 가 누적되면 디스크 비용과 디버깅 비용이 모두 커진다.
 | Version lock-in | runtime schema 를 단정 | 구현 시점 문서 확인 |
 | Advisory hook configured as blocker | reminder/notice 성격인데 차단 exit 로 사용자 작업을 막음 | 기본은 stderr + exit 0, 차단은 별도 환경변수 opt-in |
 | Substring rule as hard block | 단순 substring 매칭을 보안 차단 근거로 사용 | advisory 톤으로 강등하거나 AST/reviewer 자산으로 이동 |
-| Unbounded auto-loop | Stop/Notification 훅이 opt-in·cap·completion gate 없이 자기 재호출 | §10.5 안전 요건 모두 충족 또는 제거 |
-| Scattered session state | session 별 별도 파일이 cleanup 없이 누적 | 단일 store + 명시적 lifecycle, §10.6 참고 |
+| Unbounded auto-loop | Stop/Notification 훅이 opt-in·cap·completion gate 없이 자기 재호출 | §10.8 안전 요건 모두 충족 또는 제거 |
+| Scattered session state | session 별 별도 파일이 cleanup 없이 누적 | 단일 store + 명시적 lifecycle, §10.9 참고 |
+| Hidden usage logging | prompt/file content 를 고지 없이 수집 | 최소 metadata, retention, opt-out 정책 추가 |
+| Auto-approval shortcut | PermissionRequest hook 이 broad pattern 을 자동 승인 | §10.7 조건 충족 또는 advisory 로 강등 |
 
 ---
 

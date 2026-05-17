@@ -1,4 +1,4 @@
-# GAP 분석 위임 프롬프트 v2
+# GAP 분석 위임 프롬프트 v2.1
 
 아래 프롬프트를 다른 LLM agent 에게 그대로 전달한다.
 
@@ -8,18 +8,22 @@
 
 ## 목표
 
-`v2/` 기준 문서를 사용해 실제 구성 자산과 기준 문서 사이의 GAP 을 분석하고, 자산별 GAP 리포트를 작성한다.
+root 기준 문서(v2.1)를 사용해 실제 구성 자산과 기준 문서 사이의 GAP 을 분석하고, 자산별 GAP 리포트를 작성한다.
 
 분석 대상 자산:
 - skills
 - agents
+- commands
 - hooks, 단 현재 repo 에 hook 자산이 있을 때만
+- runtime/settings, 단 현재 repo 에 설정 자산이 있을 때만
 
 각 자산마다 하나의 리포트를 만든다.
 
 - Skill: `v2/gaps/skill-<skill-name>.GAP.md`
 - Agent: `v2/gaps/agent-<path-safe-agent-name>.GAP.md`
+- Command: `v2/gaps/command-<command-name>.GAP.md`
 - Hook: `v2/gaps/hook-<hook-name>.GAP.md`
+- Runtime: `v2/gaps/runtime-<settings-or-policy-name>.GAP.md`
 
 경로에 `/` 가 있으면 `-` 로 치환한다.
 
@@ -34,6 +38,9 @@ agents/feature-dev/code-reviewer.md
 
 .claude/hooks/format-on-edit.sh
 -> v2/gaps/hook-format-on-edit.GAP.md
+
+.claude/settings.json
+-> v2/gaps/runtime-project-settings.GAP.md
 ```
 
 ## 반드시 먼저 읽을 문서
@@ -43,10 +50,12 @@ agents/feature-dev/code-reviewer.md
 1. `CONSTITUTION.md`
 2. `SKILL-GUIDE.md`
 3. `AGENT-GUIDE.md`
-4. `HOOK-GUIDE.md`
-5. `v2/GAP-FORMAT.md`
+4. `COMMAND-GUIDE.md`
+5. `HOOK-GUIDE.md`
+6. `RUNTIME-GUIDE.md`
+7. `GAP-FORMAT.md`
 
-`v1/` 문서는 역사적 참고물일 뿐이다. v2 GAP 분석의 기준으로 사용하지 않는다.
+`v1/`, `references/v2/` archive 문서는 역사적 참고물일 뿐이다. active GAP 분석의 기준으로 사용하지 않는다.
 
 ## 분석 대상
 
@@ -69,6 +78,13 @@ agents/builtin/**
 agents/**/README.md
 ```
 
+Command 대상은 repo 안에 존재할 때만 분석한다. 다음 후보를 확인한다.
+
+```text
+.claude/commands/**/*.md
+commands/**/*.md
+```
+
 Hook 대상은 repo 안에 존재할 때만 분석한다. 다음 후보를 확인한다.
 
 ```text
@@ -81,6 +97,17 @@ hooks/**
 ```
 
 hook 후보가 없으면 hook 분석은 생략하고 완료 보고에 `Hook assets: none found` 라고 쓴다.
+
+Runtime/settings 대상은 repo 안에 존재할 때만 분석한다. 다음 후보를 확인한다.
+
+```text
+.claude/settings*.json
+.mcp.json
+settings.json
+**/*settings*.json
+```
+
+runtime/settings 후보가 없으면 runtime 분석은 생략하고 완료 보고에 `Runtime assets: none found` 라고 쓴다.
 
 ## 수정 가능 범위
 
@@ -102,8 +129,10 @@ hooks/**
 CONSTITUTION.md
 SKILL-GUIDE.md
 AGENT-GUIDE.md
+COMMAND-GUIDE.md
 HOOK-GUIDE.md
-v2/GAP-FORMAT.md
+RUNTIME-GUIDE.md
+GAP-FORMAT.md
 v1/**
 ```
 
@@ -116,8 +145,10 @@ v1/**
 3. 자산 유형별로 적용할 기준 문서를 정한다.
    - skill: `CONSTITUTION.md`, `SKILL-GUIDE.md`, `GAP-FORMAT.md`
    - agent: `CONSTITUTION.md`, `AGENT-GUIDE.md`, `GAP-FORMAT.md`
+   - command: `CONSTITUTION.md`, `COMMAND-GUIDE.md`, `GAP-FORMAT.md`
    - hook: `CONSTITUTION.md`, `HOOK-GUIDE.md`, `GAP-FORMAT.md`
-4. `v2/GAP-FORMAT.md` 의 리포트 구조를 따라 작성한다.
+   - runtime/settings: `CONSTITUTION.md`, `RUNTIME-GUIDE.md`, `GAP-FORMAT.md`
+4. `GAP-FORMAT.md` 의 리포트 구조를 따라 작성한다.
 5. 형식 차이가 아니라 실제 영향을 중심으로 finding 을 만든다.
 6. 최종 완료 보고를 작성한다.
 
@@ -178,7 +209,7 @@ GAP 은 "가이드와 다름"이 아니라 "차이가 실제 품질이나 안정
 
 `GUIDE_GAP` 은 신중하게 사용한다. 한 자산의 취향 차이가 아니라 반복 패턴, false positive 방지, platform behavior 명확화에 도움이 될 때만 사용한다.
 
-헌법 수정 제안은 매우 드물게만 한다. skill/agent/hook 모두에 적용되는 공통 원칙일 때만 `Constitution Review` 에 적는다.
+헌법 수정 제안은 매우 드물게만 한다. command/skill/agent/hook/runtime 전반에 적용되는 공통 원칙일 때만 `Constitution Review` 에 적는다.
 
 ## Severity
 
@@ -191,20 +222,40 @@ Severity 는 규칙 위반 개수가 아니라 영향도로 판단한다.
 
 ## Skill 점검 축
 
-Skill 은 "필요할 때 로드되는 판단 절차와 방법론" 으로 본다.
+Skill 은 "모델이 자동 활성화하는 외부 인프라·도메인 능력 확장 모듈" 로 본다.
 
 확인할 것:
 
 - activation signal 이 명확한가?
 - description 이 workflow shortcut 을 만들지 않는가?
+- 사용자 명시 workflow, 문서 링크 주입, plan gate 를 command 로 넘기고 있는가?
 - scope 또는 near-miss 가 필요한 경우 보이는가?
-- workflow 가 실행 가능한가?
+- 외부 infra/API/provider/domain capability 절차가 실행 가능한가?
 - mutation 가능성이 있으면 effect gate 가 있는가?
 - output contract 가 있는가?
 - progressive disclosure 가 적절한가?
 - reusable 지식과 project memory 가 분리되어 있는가?
 - behavior 를 검증할 수 있는가?
-- 다른 skill/agent/hook 과 overlap 이 설명되는가?
+- 다른 command/skill/agent/hook 과 overlap 이 설명되는가?
+
+## Command 점검 축
+
+Command 는 "사용자가 명시 호출하는 workflow entrypoint 이자 context router" 로 본다.
+
+확인할 것:
+
+- explicit user invocation 이 필요한가?
+- 입력과 missing-input 질문이 명확한가?
+- scope 와 exclusion 이 명확한가?
+- 하위 skill/agent 위임 contract 가 있는가?
+- docs/specs/decisions/context-map 링크나 selector 를 bounded 하게 주입하는가?
+- provider/API/domain 세부 사용법을 skill 로 분리하는가?
+- capability surface 가 workflow 와 맞는가?
+- mutation 가능성이 있으면 effect gate 가 있는가?
+- output contract 가 있는가?
+- fail-closed 와 no-op 경로가 있는가?
+- main context 에 남기는 정보가 bounded 되어 있는가?
+- behavior 를 검증할 수 있는가?
 
 ## Agent 점검 축
 
@@ -240,6 +291,23 @@ Hook 은 "runtime event 에 자동 반응하는 deterministic guardrail" 로 본
 - version-sensitive assumption 이 표시되어 있는가?
 - behavior 를 검증할 수 있는가?
 
+## Runtime 점검 축
+
+Runtime/settings 는 "권한, 모델, MCP, memory, context loading, budget 의 실행 정책" 으로 본다.
+
+확인할 것:
+
+- settings scope 가 공유성과 민감도에 맞는가?
+- allow rules 가 좁게 제한되는가?
+- deny/block rules 가 destructive action 을 막는가?
+- ask rules 가 위험하지만 legitimate 한 작업을 다루는가?
+- secret, credential, personal path 가 project-shared 설정에 없는가?
+- MCP server 의 source 와 capability 가 설명되는가?
+- memory/state lifecycle 이 명확한가?
+- model/effort/budget 선택이 정당화되는가?
+- auto/background behavior 에 opt-in, cap, stop path 가 있는가?
+- version-sensitive assumption 이 표시되어 있는가?
+
 ## Evidence 작성 규칙
 
 - 긴 원문을 붙여넣지 않는다.
@@ -251,7 +319,7 @@ Hook 은 "runtime event 에 자동 반응하는 deterministic guardrail" 로 본
 
 ## 리포트 구조
 
-각 리포트는 `v2/GAP-FORMAT.md` 의 순서를 따른다.
+각 리포트는 `GAP-FORMAT.md` 의 순서를 따른다.
 
 1. Metadata
 2. Executive Summary
@@ -289,5 +357,7 @@ Hook 은 "runtime event 에 자동 반응하는 deterministic guardrail" 로 본
 5. `GUIDE_GAP` 목록
 6. `Constitution Review` 후보가 있으면 그 이유
 7. hook 자산을 찾지 못했으면 `Hook assets: none found`
-8. 분석하지 못한 파일이 있으면 그 이유
+8. command 자산을 찾지 못했으면 `Command assets: none found`
+9. runtime/settings 자산을 찾지 못했으면 `Runtime assets: none found`
+10. 분석하지 못한 파일이 있으면 그 이유
 ````

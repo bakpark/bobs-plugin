@@ -4,9 +4,9 @@ Use this reference when designing or revising a SKILL.md.
 
 ## Good Fit
 
-Create or update a skill when the task needs reusable procedural knowledge, local workflow rules, bundled scripts, or references that should load on demand.
+Create or update a skill when the task needs automatic capability extension: external infrastructure/API/provider knowledge, domain-specific analysis or verification, bundled scripts, or references that should load on demand.
 
-Do not create a skill for a one-off checklist, a role that needs isolated context, or a deterministic event guard. Use an agent or hook instead.
+Do not create a skill for a user-invoked workflow entrypoint, context-link routing, a one-off checklist, a role that needs isolated context, or a deterministic event guard. Use a command, agent, or hook instead.
 
 ## Frontmatter
 
@@ -65,7 +65,7 @@ SKILL.md should say exactly when each reference should be read.
 
 ## Relation To skill-creator
 
-Use plugin `skill-creator` when the work is primarily "make or improve a skill". Use local `harness-resource-design` first when deciding whether the answer should be a skill, agent, hook, or plugin.
+Use plugin `skill-creator` when the work is primarily "make or improve a skill". Use local `harness-resource-design` first when deciding whether the answer should be a command, skill, agent, hook, runtime setting, or plugin.
 
 Suggested flow:
 1. Designer chooses resource type and contract.

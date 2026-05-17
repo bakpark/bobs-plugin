@@ -1,11 +1,14 @@
-# GAP 리포트 포맷 v2
+# GAP 리포트 포맷 v2.1
 
 생성: 2026-05-16
+개정: 2026-05-17
 상위 문서:
 - `CONSTITUTION.md`
 - `SKILL-GUIDE.md`
 - `AGENT-GUIDE.md`
+- `COMMAND-GUIDE.md`
 - `HOOK-GUIDE.md`
+- `RUNTIME-GUIDE.md`
 
 이 문서는 v2 기준 문서와 실제 구성 자산 사이의 차이를 기록하는 리포트 형식이다. GAP-FORMAT 은 헌법과 가이드의 권위를 재판단하지 않는다. 헌법과 가이드가 정한 원칙을 실제 자산에 적용할 때 필요한 기록 방식을 정의한다.
 
@@ -13,7 +16,7 @@
 
 ```text
 CONSTITUTION.md
--> SKILL-GUIDE.md / AGENT-GUIDE.md / HOOK-GUIDE.md
+-> SKILL-GUIDE.md / AGENT-GUIDE.md / COMMAND-GUIDE.md / HOOK-GUIDE.md / RUNTIME-GUIDE.md
 -> GAP-FORMAT.md
 -> 개별 GAP 리포트
 ```
@@ -43,7 +46,9 @@ v2 GAP 리포트는 `v2/gaps/` 아래에 둔다.
 ```text
 v2/gaps/skill-<skill-name>.GAP.md
 v2/gaps/agent-<path-safe-agent-name>.GAP.md
+v2/gaps/command-<command-name>.GAP.md
 v2/gaps/hook-<hook-name>.GAP.md
+v2/gaps/runtime-<settings-or-policy-name>.GAP.md
 ```
 
 예시:
@@ -51,7 +56,9 @@ v2/gaps/hook-<hook-name>.GAP.md
 ```text
 v2/gaps/skill-brainstorming.GAP.md
 v2/gaps/agent-feature-dev-code-reviewer.GAP.md
+v2/gaps/command-weather-orchestrator.GAP.md
 v2/gaps/hook-format-on-edit.GAP.md
+v2/gaps/runtime-project-settings.GAP.md
 ```
 
 경로에 `/` 가 있는 자산명은 `-` 로 치환한다.
@@ -62,11 +69,13 @@ v2/gaps/hook-format-on-edit.GAP.md
 
 항상 권위가 높은 문서부터 적용한다.
 
-1. `CONSTITUTION.md`: 세 자산에 공통 적용되는 hard rule 과 design principle
+1. `CONSTITUTION.md`: 하네스 자산에 공통 적용되는 hard rule 과 design principle
 2. 타입별 가이드:
    - skill: `SKILL-GUIDE.md`
    - agent: `AGENT-GUIDE.md`
+   - command: `COMMAND-GUIDE.md`
    - hook: `HOOK-GUIDE.md`
+   - runtime/settings: `RUNTIME-GUIDE.md`
 3. `GAP-FORMAT.md`: 리포트 작성 형식과 판정 절차
 
 평가자가 헌법과 가이드의 해석을 임의로 바꾸면 안 된다. 다만 실제 자산의 좋은 패턴이 가이드에 없거나, 가이드가 헌법보다 좁게 읽히는 경우는 `GUIDE_GAP` 으로 기록해 다음 iteration 의 입력으로 남길 수 있다.
@@ -87,6 +96,9 @@ GAP 으로 기록하는 경우:
 - 검증할 수 없는 구조라 반복 안정성을 판단하기 어렵다.
 - 유사 자산과 overlap 이 있으나 차이가 설명되지 않는다.
 - 실제 자산의 좋은 공통 패턴이 가이드에 빠져 있다.
+- 사용자가 명시 호출해야 할 workflow 가 skill/agent 로 숨겨져 있다.
+- 런타임 권한, memory, MCP, budget 이 책임보다 넓다.
+- version-sensitive 가정에 검증일/source 가 없다.
 
 기록하지 않아도 되는 경우:
 - 단순 문체 차이
@@ -133,7 +145,7 @@ GAP 으로 기록하는 경우:
 - 타입별 guide 가 platform behavior 를 단정해 평가 혼선을 만든다.
 - 하위 문서 수정으로 향후 GAP 리포트 품질이 좋아진다.
 
-헌법 자체를 수정해야 한다고 제안하려면, 그 내용이 skill/agent/hook 모두에 적용되는 공통 원칙인지 확인한다. 특정 타입에만 해당하면 해당 타입 가이드의 `GUIDE_GAP` 으로 둔다.
+헌법 자체를 수정해야 한다고 제안하려면, 그 내용이 command/skill/agent/hook/runtime 전반에 적용되는 공통 원칙인지 확인한다. 특정 타입에만 해당하면 해당 타입 가이드의 `GUIDE_GAP` 으로 둔다.
 
 ---
 
@@ -212,7 +224,7 @@ Guide target: HOOK-GUIDE.md Version-Sensitive Details
 작성일:
 기준 버전: v2
 검토자:
-asset_type: skill | agent | hook
+asset_type: skill | agent | command | hook | runtime
 source_path:
 compared_against:
 final_decision:
@@ -265,7 +277,25 @@ has_quality_gate:
 has_project_memory_coupling:
 ```
 
-### 11.3 Hook Snapshot
+### 11.3 Command Snapshot
+
+```text
+name:
+description:
+description_words:
+argument_hint:
+body_words:
+body_lines:
+allowed_tools:
+model:
+has_input_contract:
+has_delegation_contract:
+has_effect_gate:
+has_output_contract:
+has_fail_closed_path:
+```
+
+### 11.4 Hook Snapshot
 
 ```text
 name:
@@ -280,12 +310,30 @@ has_external_io:
 has_security_sensitive_behavior:
 ```
 
+### 11.5 Runtime Snapshot
+
+```text
+name:
+scope: user | project | local | managed | unknown
+source_path:
+permissions_allow:
+permissions_ask:
+permissions_deny:
+mcp_servers:
+memory_scopes:
+model_or_budget_policy:
+auto_mode_or_background_policy:
+has_secret_or_local_path:
+has_version_evidence:
+```
+
 Snapshot 판정 메모:
 - `has_output_contract` 는 제목이 아니라 기능 기준이다.
 - `has_quality_gate` 는 숫자 confidence 만 뜻하지 않는다.
 - `tools: omitted` 은 `tools: none` 이 아니다.
 - `model: inherit` 은 명시적 model 선택이다.
 - hook 의 exact schema 와 exit semantics 는 runtime 확인 전 단정하지 않는다.
+- runtime 의 permission precedence, memory injection, MCP loading 은 구현 시점 확인 전 단정하지 않는다.
 
 ---
 
@@ -306,8 +354,9 @@ Status 값:
 |---|---|---|
 | Activation signal is clear | pass / partial / gap / n/a / unknown | |
 | Description avoids workflow shortcut | pass / partial / gap / n/a / unknown | |
+| Skill is an automatic external/domain capability, not a user workflow | pass / partial / gap / n/a / unknown | |
 | Scope or near-miss is clear when needed | pass / partial / gap / n/a / unknown | |
-| Workflow is actionable | pass / partial / gap / n/a / unknown | |
+| Capability procedure is actionable | pass / partial / gap / n/a / unknown | |
 | Effect gate exists when mutation is possible | pass / partial / gap / n/a / unknown | |
 | Output contract exists | pass / partial / gap / n/a / unknown | |
 | Progressive disclosure is appropriate | pass / partial / gap / n/a / unknown | |
@@ -330,7 +379,23 @@ Status 값:
 | Overlap with other agents is intentional | pass / partial / gap / n/a / unknown | |
 | Behavior can be verified | pass / partial / gap / n/a / unknown | |
 
-### 12.3 Hook Checks
+### 12.3 Command Checks
+
+| Check | Status | Notes |
+|---|---|---|
+| Explicit user invocation is required | pass / partial / gap / n/a / unknown | |
+| Input and missing-input handling are clear | pass / partial / gap / n/a / unknown | |
+| Scope and exclusions are clear | pass / partial / gap / n/a / unknown | |
+| Delegation contract is clear | pass / partial / gap / n/a / unknown | |
+| Context links/selectors are explicit and bounded | pass / partial / gap / n/a / unknown | |
+| Capability surface matches workflow | pass / partial / gap / n/a / unknown | |
+| Effect gate exists when mutation is possible | pass / partial / gap / n/a / unknown | |
+| Output contract exists | pass / partial / gap / n/a / unknown | |
+| Fail-closed and no-op paths are clear | pass / partial / gap / n/a / unknown | |
+| Main-context output is bounded | pass / partial / gap / n/a / unknown | |
+| Behavior can be verified | pass / partial / gap / n/a / unknown | |
+
+### 12.4 Hook Checks
 
 | Check | Status | Notes |
 |---|---|---|
@@ -344,6 +409,21 @@ Status 값:
 | Registration path is clear | pass / partial / gap / n/a / unknown | |
 | Version-sensitive assumptions are marked | pass / partial / gap / n/a / unknown | |
 | Behavior can be verified | pass / partial / gap / n/a / unknown | |
+
+### 12.5 Runtime Checks
+
+| Check | Status | Notes |
+|---|---|---|
+| Settings scope matches shareability | pass / partial / gap / n/a / unknown | |
+| Allow rules are narrowly scoped | pass / partial / gap / n/a / unknown | |
+| Deny/block rules protect destructive actions | pass / partial / gap / n/a / unknown | |
+| Ask rules cover risky but legitimate operations | pass / partial / gap / n/a / unknown | |
+| Secrets and personal paths are not project-shared | pass / partial / gap / n/a / unknown | |
+| MCP servers have source and capability notes | pass / partial / gap / n/a / unknown | |
+| Memory/state lifecycle is clear | pass / partial / gap / n/a / unknown | |
+| Model/effort/budget choices are justified | pass / partial / gap / n/a / unknown | |
+| Auto/background behavior has opt-in/cap/stop path | pass / partial / gap / n/a / unknown | |
+| Version-sensitive assumptions are marked | pass / partial / gap / n/a / unknown | |
 
 ---
 
@@ -442,7 +522,7 @@ Evidence 는 짧게 쓴다. 긴 원문 복사는 피한다.
 - [ ] ...
 ```
 
-`Constitution Review` 는 드물게만 사용한다. 세 자산 모두에 적용되는 공통 원칙 수준일 때만 적는다.
+`Constitution Review` 는 드물게만 사용한다. 하네스 자산 전반에 적용되는 공통 원칙 수준일 때만 적는다.
 
 ---
 

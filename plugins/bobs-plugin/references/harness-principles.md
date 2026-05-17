@@ -13,6 +13,8 @@
 
 에이전트 환경 구축의 핵심은 "좋은 프롬프트를 한 번 작성하는 것"이 아니라, 에이전트가 실제 작업 중 필요한 맥락을 찾고 사용할 수 있도록 문서, 도구, 검증 루프를 설계하는 것이다.
 
+프롬프트는 하네스의 한 입력일 뿐이다. 하네스는 prompt construction, deterministic execution, context architecture, runtime policy 를 함께 설계한다.
+
 ## 2. 문제 정의
 
 ### 에이전트가 필요한 정보의 종류
@@ -53,15 +55,17 @@
 
 ## 4. 구성요소 모델
 
-앞으로 세팅할 구성요소는 `agents`, `skills`, `hooks`, `docs`이다.
+앞으로 세팅할 구성요소는 `docs`, `commands`, `agents`, `skills`, `hooks`, `runtime settings` 이다.
 각 구성요소는 같은 문제를 다른 방식으로 해결한다.
 
 핵심 모델:
 
 - `docs`는 지식의 원천이다.
+- `commands`는 사용자가 명시 호출하는 workflow entrypoint 이자 context router 이다.
 - `agents`는 역할과 책임의 모델이다.
-- `skills`는 반복 가능한 작업 절차이다.
+- `skills`는 자동 활성화되는 외부 인프라·도메인 능력 확장 모듈이다.
 - `hooks`는 자동 개입하는 가드레일과 관측 장치이다.
+- `runtime settings`는 권한, 모델, MCP, memory, budget 의 실행 정책이다.
 - `context map`은 이 구성요소들을 연결하는 라우터이다.
 
 ### 4.1 Docs: 지식의 원천
@@ -133,7 +137,47 @@
 - 구현과 동기화되지 않는 긴 설명을 방치하는 것
 - `memo/`에 있어야 할 미정 아이디어를 정식 정책처럼 문서화하는 것
 
-### 4.2 Agents: 역할과 책임
+### 4.2 Commands: 사용자 명시 workflow
+
+`commands`는 사용자가 직접 시작하는 workflow의 진입점이다.
+main context 안에서 인자 수집, 사용자 질문, plan gate, 문서 링크 주입, 얕은 orchestration 을 담당한다.
+
+#### 담당할 것
+
+- slash command 또는 명시 이름으로 시작되는 workflow
+- 사용자 선호, 대상 경로, 실행 범위 확인
+- 관련 docs/specs/decisions/context-map 링크 수집과 context selector 주입
+- 필요한 skill/agent 호출
+- workflow 진행 요약과 다음 행동 제시
+- mutation, commit, deploy 전 승인 gate
+
+#### 담당하지 않을 것
+
+- 자동 라우팅되어야 하는 절차
+- 별도 context specialist 판단
+- 매 이벤트마다 보장해야 하는 guardrail
+- 긴 reference 저장소
+- 외부 API/provider/domain 세부 사용법 자체
+- 권한 우회나 숨은 자동 배포
+
+#### 초기 후보 command
+
+| command | 사용 시점 | 목적 |
+| --- | --- | --- |
+| `audit-harness` | 하네스 자산 점검 시작 | 대상 자산을 확인하고 GAP 분석 workflow 실행 |
+| `install-harness` | 프로젝트에 하네스 이식 | docs/skills/hooks/agents 적용 순서 관리 |
+| `review-agent-env` | 에이전트 실패 후 회고 | 실패를 docs/skill/hook/agent/runtime 개선으로 분류 |
+
+#### 검증 기준
+
+- 사용자가 명시 호출했을 때만 시작되는가?
+- 입력이 부족하면 필요한 질문만 하는가?
+- 하위 skill/agent 위임 contract 가 명확한가?
+- 필요한 문서 링크를 제공하되 긴 본문을 주입하지 않는가?
+- 부수 효과 전에 gate 가 있는가?
+- main context 에 결론과 다음 행동만 남기는가?
+
+### 4.3 Agents: 역할과 책임
 
 `agents`는 작업을 수행하는 주체의 역할 모델이다.
 여기서 말하는 에이전트는 특정 제품의 런타임 기능만이 아니라, 작업을 어떤 역할로 나누고 어떤 책임을 부여할지에 대한 설계 단위이다.
@@ -171,23 +215,26 @@
 - 역할별 참조 문서가 없어 매번 맥락 탐색을 새로 하는 것
 - 리뷰어와 구현자의 관점을 분리하지 않는 것
 
-### 4.3 Skills: 반복 가능한 작업 절차
+### 4.4 Skills: 자동 활성화 능력 확장
 
-`skills`는 특정 작업 유형에서 반복되는 절차를 캡슐화한다.
-항상 로드되는 지식이 아니라, 필요할 때 로드되는 실행 지침이다.
+`skills`는 모델이 필요를 감지했을 때 자동 활성화되는 능력 확장 모듈이다.
+항상 로드되는 프로젝트 지식이 아니라, 외부 인프라·API·provider·도메인 특화 능력을 필요할 때 제공한다.
 
 #### 담당할 것
 
-- 반복되는 작업 순서
-- 작업 시작 전 확인할 문서
-- 사용할 명령과 도구
-- 산출물 형식
-- 완료 기준
-- 흔한 실패 패턴과 대응 방식
+- 외부 인프라, API, SDK, provider 사용법
+- 도메인 특화 분석, 변환, 검증, 생성 능력
+- command 또는 agent 가 호출하는 helper capability
+- provider별 gotcha, version-sensitive reference, setup/config 확인법
+- 사용할 도구, script, template, sample output
+- output contract 와 흔한 실패 패턴
 
 #### 담당하지 않을 것
 
 - 프로젝트 전체 지식
+- 사용자가 명시 호출하는 workflow entrypoint
+- 사용자 질문, plan gate, 단계 진행
+- 프로젝트 문서 링크를 모으는 context router
 - 항상 적용되는 보안 정책
 - 장기적인 의사결정 근거
 - 특정 기능의 임시 구현 메모
@@ -196,28 +243,27 @@
 
 | skill | 사용 시점 | 목적 |
 | --- | --- | --- |
-| `agent-environment-audit` | 에이전트 작업 실패 후 | 누락된 맥락과 개선 위치를 분류 |
-| `feature-implementation` | 신규 기능 구현 시 | 요구사항, 설계, 구현, 테스트 흐름 표준화 |
-| `bug-investigation` | 버그 수정 시 | 재현, 원인 분석, 회귀 테스트 추가 |
-| `code-review` | PR 또는 로컬 변경 리뷰 시 | 결함, 회귀, 보안 위험, 테스트 누락 탐지 |
-| `docs-sync` | 코드나 정책 변경 후 | 문서 업데이트 필요 여부 점검 |
-| `integration-change` | 외부 시스템 연계 변경 시 | 인증, 권한, 장애, 관측 포인트 확인 |
+| `github-pr-analysis` | PR 관련 판단 중 자동 활성화 | GitHub PR API, diff, review semantics 처리 |
+| `cloud-runbook-helper` | cloud/infra 작업 중 자동 활성화 | provider별 CLI/API gotcha 와 안전 확인 |
+| `payment-domain-verifier` | 결제 도메인 작업 중 자동 활성화 | 결제 흐름, edge case, 검증 기준 제공 |
+| `browser-product-verification` | UI flow 검증 중 자동 활성화 | Playwright/browser 검증 절차와 실패 증거 정리 |
+| `schema-migration-helper` | DB/schema 변경 중 자동 활성화 | migration 도구와 rollback/checklist 보조 |
 
 #### 검증 기준
 
-- 같은 유형의 작업에서 매번 반복 설명이 줄어드는가?
-- skill이 필요한 문서를 올바르게 찾아가게 하는가?
+- 모델이 필요한 순간 자동 활성화되는가?
+- command/agent 가 넘긴 context selector 를 사용할 뿐 프로젝트 memory 를 소유하지 않는가?
 - skill 실행 후 산출물 형식이 안정적인가?
 - 실패 패턴이 skill 개선으로 환원되는가?
 
 #### 안티패턴
 
 - 너무 많은 내용을 skill에 넣어 문서 저장소처럼 쓰는 것
-- 한 번만 쓸 절차를 skill로 만드는 것
+- 사용자가 직접 시작하는 workflow 를 skill 로 만드는 것
 - 프로젝트마다 달라야 하는 내용을 전역 skill로 고정하는 것
 - 완료 기준이 없어 실행 품질을 평가할 수 없는 것
 
-### 4.4 Hooks: 가드레일과 관측
+### 4.5 Hooks: 가드레일과 관측
 
 `hooks`는 에이전트가 도구를 쓰는 순간 자동으로 개입하는 장치이다.
 복잡한 판단보다는 차단, 경고, 기록, 자동 주입처럼 작고 명확한 역할을 맡긴다.
@@ -262,21 +308,51 @@
 - 경고만 많고 개선 루프와 연결되지 않는 것
 - 자동 승인 범위를 넓혀 보안 경계를 흐리는 것
 
-### 4.5 Context Map: 구성요소를 연결하는 라우터
+### 4.6 Runtime Settings: 실행 정책
+
+`runtime settings`는 에이전트가 실제로 할 수 있는 일의 상한을 정한다.
+자연어 지침으로 안전을 약속하는 대신, 권한·모델·MCP·memory·budget을 실행 계층에서 제한한다.
+
+#### 담당할 것
+
+- tool permission allow/ask/deny
+- model, effort, max turns, budget
+- MCP server 등록과 tool exposure
+- memory scope 와 state lifecycle
+- auto mode, background task, sandbox, approval 정책
+- version-sensitive runtime behavior 기록
+
+#### 담당하지 않을 것
+
+- 긴 workflow 설명
+- 도메인 지식 전체
+- 개인 credential 의 project 공유
+- 프로젝트별 coding convention 장문
+- 자연어 판단이 필요한 리뷰 기준
+
+#### 검증 기준
+
+- 권한이 역할보다 넓지 않은가?
+- deny/block 계층이 destructive action 을 막는가?
+- user/global/project/local scope 가 분리되는가?
+- memory 와 state 의 owner, lifecycle, cleanup 이 있는가?
+- version-sensitive 가정에 검증일과 source 가 있는가?
+
+### 4.7 Context Map: 구성요소를 연결하는 라우터
 
 `context map`은 작업 유형에 따라 어떤 문서, 역할, skill, hook이 관여해야 하는지 연결한다.
 에이전트 환경에서 가장 중요한 인덱스 문서가 된다.
 
 #### 기본 형태
 
-| 작업 유형 | 우선 역할 | 먼저 볼 문서 | 사용할 skill | 관여 hook |
+| 작업 유형 | 우선 역할 | 먼저 볼 문서 | 사용할 command/skill | 관여 hook |
 | --- | --- | --- | --- | --- |
 | 신규 기능 구현 | `planner`, `implementer` | `AGENTS.md`, `architecture.md` | `feature-implementation` | `docs-sync-check` |
 | 버그 수정 | `implementer`, `reviewer` | `AGENTS.md`, 관련 테스트 | `bug-investigation` | `task-log-capture` |
 | PR 리뷰 | `reviewer` | `review-process.md`, `security.md` | `code-review` | 없음 |
 | 외부 API 연동 | `planner`, `security-auditor` | `integrations/`, `security.md` | `integration-change` | `secret-access-warning` |
 | 문서 정리 | `doc-maintainer` | `docs/README.md` | `docs-sync` | 없음 |
-| 에이전트 환경 개선 | `agent-env-maintainer` | `docs/agent/` | `agent-environment-audit` | `task-log-capture` |
+| 에이전트 환경 개선 | `agent-env-maintainer` | `docs/agent/` | `review-agent-env` | `task-log-capture` |
 
 #### 검증 기준
 
@@ -285,15 +361,18 @@
 - 실패 후 어느 구성요소를 고쳐야 하는지 바로 판단되는가?
 - 새로운 작업 유형이 생겼을 때 행을 추가하는 방식으로 확장 가능한가?
 
-### 4.6 개선 위치 결정 규칙
+### 4.8 개선 위치 결정 규칙
 
 검증 루프에서 발견한 문제는 아래 기준으로 반영 위치를 정한다.
 
 | 발견된 문제 | 개선 위치 |
 | --- | --- |
 | 에이전트가 항상 알아야 할 규칙을 몰랐다 | `AGENTS.md` |
-| 특정 작업 절차를 반복해서 설명해야 했다 | `skills/` |
+| 사용자가 반복해서 시작하는 workflow 가 흩어져 있다 | `commands/` |
+| workflow 가 필요한 문서 링크를 매번 수동으로 모은다 | `commands/`, `docs/agent/context-map.md` |
+| 외부 인프라/API/provider 사용법을 반복해서 설명해야 했다 | `skills/` |
 | 위험한 명령이나 행동을 시도했다 | `hooks/` |
+| 권한, 모델, MCP, memory 가 책임보다 넓다 | runtime settings |
 | 코드에 없는 도메인 지식을 몰랐다 | `docs/domain/` |
 | 과거 의사결정 근거를 몰랐다 | `docs/decisions/` |
 | 어디서 정보를 찾아야 할지 몰랐다 | `docs/README.md`, `docs/agent/context-map.md` |
@@ -301,54 +380,65 @@
 | 외부 시스템 제약을 놓쳤다 | `docs/integrations/`, `docs/security.md` |
 | 작업 결과를 재현하거나 평가할 수 없었다 | `docs/agent/evaluation-loop.md`, task log |
 
-### 4.7 자산 선택 기준
+### 4.9 자산 선택 기준
 
 새로운 자동화 자산을 만들기 전에 가장 작은 적절한 형태를 고른다.
 목표는 많은 자산을 만드는 것이 아니라, 필요한 순간에 필요한 자산이 정확히 작동하게 하는 것이다.
 
 | 질문 | 선택 |
 | --- | --- |
-| 프로젝트 고유 기억, 규칙, 명령, 맥락인가? | `docs`, `AGENTS.md` |
-| 반복 가능한 판단 절차나 작업 방법론인가? | `skills` |
-| reference, script, template bundle 이 필요한가? | `skills` |
+| 프로젝트 고유 기억, 규칙, shell 명령, 맥락인가? | `docs`, `AGENTS.md` |
+| 사용자가 명시 호출하는 workflow entrypoint 인가? | `commands` |
+| 인자 수집, 사용자 질문, plan gate, 얕은 orchestration 이 필요한가? | `commands` |
+| 관련 문서 링크와 context selector 를 모아 하위 자산에 전달해야 하는가? | `commands` |
+| 자동 활성화되는 외부 인프라/API/provider 능력인가? | `skills` |
+| 도메인 특화 분석·변환·검증 능력인가? | `skills` |
+| reference, script, template bundle 로 능력을 확장해야 하는가? | `skills` |
 | 별도 컨텍스트에서 specialist 판단이 필요한가? | `agents` |
 | 병렬 작업, model/tool 격리, 독립 리뷰가 필요한가? | `agents` |
 | 매 이벤트마다 자동 보장되어야 하는가? | `hooks` |
 | 파일 수정 전 차단해야 하는가? | `PreToolUse` hook |
 | 파일 수정 후 best-effort 정리나 기록이 필요한가? | `PostToolUse` hook |
+| 권한, 모델, MCP, memory, budget 정책인가? | runtime settings |
 | 외부 시스템 연동을 묶어야 하는가? | plugin 또는 MCP |
 
 판단 순서:
 
 1. 프로젝트 고유 정보면 먼저 `docs` 또는 `AGENTS.md`에 둔다.
-2. 자동 보장이 필요하면 `hook`을 고려한다.
-3. 별도 컨텍스트와 specialist 판단이 필요하면 `agent`를 고려한다.
-4. 반복 가능한 절차와 판단 기준이면 `skill`을 고려한다.
-5. 어느 쪽도 명확하지 않으면 새 자산을 만들지 않는다.
+2. 권한, 모델, MCP, memory, budget 정책이면 runtime settings 를 고려한다.
+3. 사용자가 명시 호출하는 workflow 면 `command`를 고려한다.
+4. 자동 보장이 필요하면 `hook`을 고려한다.
+5. 별도 컨텍스트와 specialist 판단이 필요하면 `agent`를 고려한다.
+6. 자동 활성화되는 외부 인프라·도메인 능력과 reference bundle 이면 `skill`을 고려한다.
+7. 어느 쪽도 명확하지 않으면 새 자산을 만들지 않는다.
 
-### 4.8 공통 검증 축
+### 4.10 공통 검증 축
 
-`agents`, `skills`, `hooks`는 실행 방식이 다르지만 같은 기준으로 검증할 수 있어야 한다.
+`commands`, `agents`, `skills`, `hooks`, runtime settings 는 실행 방식이 다르지만 같은 기준으로 검증할 수 있어야 한다.
 검증 루프에서는 아래 축을 기준으로 gap을 기록한다.
 
 | 검증 축 | 질문 | 적용 대상 |
 | --- | --- | --- |
-| Activation | 언제 활성화되는가? trigger가 명확한가? | `agents`, `skills`, `hooks` |
-| Scope | 어떤 입력, 파일, 작업 범위에만 적용되는가? | `agents`, `skills`, `hooks` |
-| Near-miss | 비슷하지만 쓰면 안 되는 경우가 정의되어 있는가? | `agents`, `skills` |
-| Output contract | 실행 후 무엇을 남기는가? 호출자가 다음 행동을 결정할 수 있는가? | `agents`, `skills`, `hooks` |
-| Capability surface | 가진 권한이 책임보다 넓지 않은가? | `agents`, `skills`, `hooks` |
-| Effect gate | 파일 수정, 설정 변경, 외부 요청 같은 부수 효과 전에 승인 또는 명시적 호출이 있는가? | `agents`, `skills`, `hooks` |
-| Verification | should-trigger, should-not-trigger, no-op, 실패 케이스를 검증할 수 있는가? | `agents`, `skills`, `hooks` |
-| Overlap | 비슷한 자산과 trigger, scope, output 차이가 설명되는가? | `agents`, `skills`, `hooks` |
+| Activation | 언제 활성화되는가? trigger가 명확한가? | `commands`, `agents`, `skills`, `hooks` |
+| Scope | 어떤 입력, 파일, 작업 범위에만 적용되는가? | 전체 |
+| Near-miss | 비슷하지만 쓰면 안 되는 경우가 정의되어 있는가? | `commands`, `agents`, `skills` |
+| Output contract | 실행 후 무엇을 남기는가? 호출자가 다음 행동을 결정할 수 있는가? | `commands`, `agents`, `skills`, `hooks` |
+| Capability surface | 가진 권한이 책임보다 넓지 않은가? | 전체 |
+| Effect gate | 파일 수정, 설정 변경, 외부 요청 같은 부수 효과 전에 승인 또는 명시적 호출이 있는가? | 전체 |
+| Context lifecycle | 어떤 context/memory/state 를 남기거나 버리는가? | 전체 |
+| Freshness | version-sensitive 가정이 검증일/source 를 갖는가? | 전체 |
+| Verification | should-trigger, should-not-trigger, no-op, 실패 케이스를 검증할 수 있는가? | 전체 |
+| Overlap | 비슷한 자산과 trigger, scope, output 차이가 설명되는가? | `commands`, `agents`, `skills`, `hooks` |
 
 #### 자산별 보강 기준
 
 | 자산 | 반드시 확인할 것 |
 | --- | --- |
-| `skills` | activation signal, workflow, output contract, approval gate, bundled resource 분리 |
+| `commands` | explicit invocation, inputs, context links, delegation contract, effect gate, result summary |
+| `skills` | automatic activation signal, external/domain capability, output contract, approval gate, bundled resource 분리 |
 | `agents` | specialist role, 기본 입력 범위, tools/model 범위, quality gate, no-finding case |
 | `hooks` | event, matcher, settings 등록 위치, script 위치, exit behavior, 빠른 no-op, 보안 경계 |
+| runtime settings | permission, scope, MCP, memory, budget, version-sensitive evidence |
 
 #### gap 기록 기준
 
@@ -363,8 +453,24 @@
 - 자주 로드되는 자산에 긴 reference가 섞여 context 비용을 키운다.
 - 비슷한 자산과 차이가 설명되지 않는다.
 - no-op 또는 no-finding 상황을 처리하지 못한다.
+- 런타임 권한이나 memory 가 자산 책임보다 넓다.
+- version-sensitive 가정이 검증 근거 없이 hard rule 처럼 쓰인다.
 
-### 4.9 1차 적용 원칙
+### 4.11 Session Lifecycle
+
+작업 중 context 품질이 흔들리면 다음 기준으로 세션 운영을 결정한다.
+
+| 상황 | 선택 |
+| --- | --- |
+| 같은 작업이고 기존 맥락이 유효하다 | Continue |
+| 잘못된 방향으로 진행했고 그 맥락이 해롭다 | Rewind |
+| 같은 작업이지만 context 가 커졌고 보존할 요약이 명확하다 | Compact with hint |
+| 완전히 새로운 작업이다 | Clear / new session |
+| 대량 탐색이나 긴 출력이 필요하고 결론만 필요하다 | Subagent |
+
+이 기준은 생산성 팁이 아니라 context architecture 의 일부다.
+
+### 4.12 1차 적용 원칙
 
 처음부터 모든 구성요소를 완성하지 않는다.
 설계 문서, 런타임 자산, 검증 루프가 최소 단위로 연결되는지 먼저 확인한다.
@@ -378,4 +484,3 @@
 - 발견된 gap은 `docs`, `agents`, `skills`, `hooks` 중 하나로 환원한다.
 
 구체적인 이식 절차 (진단 → 설계 → 실행 → 사이클) 는 `harness-installation-workflow.md` 가 정의한다.
-

@@ -6,7 +6,7 @@ Use this reference when designing or revising a subagent `.md`.
 
 Use an agent when the work benefits from isolated context, a distinct expert role, separate tool permissions, or a cheaper/stronger model than the caller.
 
-Avoid creating an agent when a short reusable procedure in the main context is enough. Use a skill for method; use an agent for role.
+Avoid creating an agent when a user-invoked workflow or short reusable procedure in the main context is enough. Use a command for explicit workflow entrypoints, a skill for method, and an agent for role.
 
 ## Frontmatter
 
@@ -67,7 +67,7 @@ Avoid one agent doing all of:
 - PR comment
 - cleanup
 
-If a single-call workflow intentionally combines responsibilities, document why and add strong escalation gates. Otherwise split into skill orchestrator plus smaller agents.
+If a single-call workflow intentionally combines responsibilities, document why and add strong escalation gates. Otherwise split into a command or skill orchestrator plus smaller agents.
 
 ## Common Negative Cases
 

@@ -12,7 +12,7 @@ Skills are tested by dispatching subagents *with and without the skill* on the s
 
 ## When to Use
 
-After drafting an agent and passing `agent-skill-auditor` (P0/P1 = 0), but before letting any caller (skill, session, pipeline) dispatch it for real work.
+After drafting an agent and passing `agent-skill-auditor` (P0/P1 = 0), but before letting any caller (command, session, pipeline) dispatch it for real work.
 
 ## TDD Mapping for Agent Testing
 

@@ -1,7 +1,7 @@
 ---
 name: harness-resource-design
 description: |-
-  Reference material only for agent-skill-designer or the main session after a Claude harness resource design task is already underway. Contains a rule-map index plus per-type guides (CONSTITUTION / SKILL-GUIDE / AGENT-GUIDE / HOOK-GUIDE) for choosing resource type, drafting contracts, and avoiding unsafe automation across skills, subagents, hooks, plugins, and workflow clusters. Do not use as the primary responder when subagent design delegation is available.
+  Reference material only for agent-skill-designer or the main session after a Claude harness resource design task is already underway. Contains a rule-map index plus per-type guides (CONSTITUTION / SKILL-GUIDE / AGENT-GUIDE / COMMAND-GUIDE / HOOK-GUIDE / RUNTIME-GUIDE) for choosing resource type, drafting contracts, and avoiding unsafe automation across commands, skills, subagents, hooks, plugins, runtime settings, and workflow clusters. Do not use as the primary responder when subagent design delegation is available.
 ---
 
 # harness-resource-design
@@ -14,9 +14,11 @@ description: |-
 
 | 필요 | 선택 |
 |---|---|
-| 절차, 도메인 지식, 반복 워크플로우 | skill |
+| 사용자가 명시 호출하는 workflow / 인자 수집 / 문서 링크 주입 / 얕은 orchestration | command |
+| 자동 활성화되는 외부 인프라·API·provider / 도메인 특화 능력 확장 | skill |
 | 별도 context / 도구 권한 / 모델 선택이 필요한 전문가 역할 | agent |
 | 매 이벤트마다 보장해야 하는 자동 동작 | hook |
+| 권한 / MCP / memory / model / budget / context loading 정책 | runtime settings |
 | 여러 자원을 배포·공유 단위로 묶음 | plugin |
 
 기본값은 새 자원 추가가 아니라 기존 자원 수정이다. 새 자원은 중복 호출 경로, description 충돌, 권한 증가를 정당화할 때만 만든다.
@@ -44,7 +46,7 @@ description: |-
 
 ## References
 
-- `references/guide-rule-map.md`: rule-ID 인덱스 + 임계값 + 안티패턴. 원문 가이드 (CONSTITUTION / SKILL-GUIDE / AGENT-GUIDE / HOOK-GUIDE) 의 압축본.
+- `references/guide-rule-map.md`: rule-ID 인덱스 + 임계값 + 안티패턴. 원문 가이드 (CONSTITUTION / SKILL-GUIDE / AGENT-GUIDE / COMMAND-GUIDE / HOOK-GUIDE / RUNTIME-GUIDE) 의 압축본.
 - `references/skill-patterns.md`: 스킬 설계, progressive disclosure, references 배치, invocation control.
 - `references/agent-patterns.md`: 에이전트 description, tools/model, output contract, 책임 분리.
 - `references/hook-patterns.md`: hook 이벤트 선택, matcher, failure behavior, routing hints.
@@ -54,7 +56,7 @@ description: |-
 설계 응답은 다음을 포함한다.
 
 - 권고: create / update / merge / delete / defer 중 하나.
-- 자원 형태: skill / agent / hook / plugin / mixed.
+- 자원 형태: command / skill / agent / hook / runtime settings / plugin / mixed.
 - 책임 경계: 해당 자원이 하는 일과 하지 않는 일.
 - 호출 contract: input, output, failure modes.
 - 적용 순서: 낮은 위험 변경부터.

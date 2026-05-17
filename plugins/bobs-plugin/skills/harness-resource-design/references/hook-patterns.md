@@ -44,7 +44,7 @@ Good:
 {
   "hookSpecificOutput": {
     "hookEventName": "UserPromptSubmit",
-    "additionalContext": "Likely resource task: consider agent-skill-designer for skill/agent/hook design."
+    "additionalContext": "Likely resource task: consider agent-skill-designer for command/skill/agent/hook/runtime design."
   }
 }
 ```
