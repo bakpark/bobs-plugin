@@ -343,12 +343,14 @@ Outline:
 5b. ✅ GAP 분석 → PASS_WITH_NOTES (P0=0, P1=0, P2=3, P3=5, GUIDE_GAP=1). general-purpose subagent 위임 (creator-gap-eval cache 미반영 fallback). P2 3건 + P3 GAP-004 (drift-avoidance) 적용. 잔류 follow-up: P3 GAP-003/005/006 + GUIDE_GAP GAP-007.
 5c. ✅ workflow doc §5.2 채움 (Step 5 책임). §6 chain 절차 본문은 Step 6 책임 — spec §7 Step 5c 의 `/` 모호성 해소: alternation, §5.2 만.
 
-### Step 6. workflow doc 최종 정리
+### Step 6. workflow doc 최종 정리 ✅
 
-- §7 anti-patterns
-- §8 verification (전체 통합)
-- cross-link / consistency 점검
-- 4 신규 skill 의 description 이 workflow doc 의 routing 표와 일치하는지 확인
+- ✅ §5.1 Phase 2 creator skills 본문 (역할 / 입력 / 호출 패턴 4단계 / args 표 / GAP 사이클 creator-gap-eval / 산출 contract). §5.2 runner = Step 5 산출 (verify only — 책임 분리 spec §7 Step 5c `/` alternation 해석)
+- ✅ §6 Cycle Runtime → 재진입 (진입 조건 §5.2 trigger 인용 / Chain 절차 4 단계 main session 책임 / 종료 조건 4종 / Cycle 카운터 책임 + self-application 검출). drift-avoidance: Routing Decision 표 본문 재생산 0
+- ✅ §7 anti-patterns 8 항목 (Design skip / spec 미수정 / Phase 1 모두 / design+creator 통합 / workflow 외부 / runner 종료 조건 무시 / spec_version mismatch / docs/agent body 재생산)
+- ✅ §8 verification 14 시나리오 (should-trigger 5 + should-not-trigger 3 + no-op + blocked + cycle 4) + 검증 방법 3 + Limits 2
+- ✅ cross-link / consistency 점검 — Task 5 통과 (ghost-free / spec_version v1 6곳 통일 / Routing 표 §2 ↔ §3.1/3.2/3.3 design ↔ §5.1 creator + §5.2 runner ↔ §6 chain 일관)
+- ✅ 4 신규 skill (3 design + 1 runner) + 3 creator description ↔ routing 표 일치 확인. workflow doc placeholder 0건 (TBD per Step N 모두 제거)
 
 ### Step 7. Creator skill 정리
 
