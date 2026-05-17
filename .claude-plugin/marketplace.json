@@ -9,7 +9,7 @@
       "name": "bobs-plugin",
       "source": "./plugins/bobs-plugin",
       "description": "Auditor + resource-design + context-map-architecture + evaluation-loop-design + evaluation-loop-runner + skill-creator + agent-creator + hook-creator + creator-gap-eval (3 creator §3-§4 통합 GAP 적용 절차, 직접 호출도 가능).",
-      "version": "0.2.0"
+      "version": "0.2.1"
     }
   ]
 }
