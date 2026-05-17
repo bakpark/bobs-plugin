@@ -81,7 +81,6 @@ CONSTITUTION.md
 | 스냅샷 디렉토리 | Marketplace | Plugin | Skill |
 |---|---|---|---|
 | `brainstorming/` | `claude-plugins-official` | `superpowers` | `brainstorming` |
-| `claude-automation-recommender/` | `claude-plugins-official` | `claude-code-setup` | `claude-automation-recommender` |
 | `claude-md-improver/` | `claude-plugins-official` | `claude-md-management` | `claude-md-improver` |
 | `frontend-design/` | `claude-plugins-official` | `frontend-design` | `frontend-design` |
 | `skill-creator/` | `claude-plugins-official` | `skill-creator` | `skill-creator` |

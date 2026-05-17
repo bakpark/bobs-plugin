@@ -14,7 +14,6 @@
 - 자산 생성기: `skill-creator` ✅, `agent-creator` ✅, `hook-creator` 🚧
 - 인덱스·계약 작성기: `agents-md-author`, `context-map-builder` (이 세션 신규), `claude-md-improver` (vendored)
 - 설계·감사: `harness-resource-design` (개선 필요), `agent-skill-designer` subagent, `agent-skill-auditor` subagent
-- 라우팅 추천: `claude-automation-recommender` (vendored)
 - 권위 문서: `references/harness-engineering.md` (640 lines, §1-7)
 
 문제:
@@ -132,7 +131,6 @@
 **흡수**:
 - `harness-resource-design` (개선·재편)
 - `agent-skill-designer` subagent (reference 자료)
-- `claude-automation-recommender` (reference)
 
 ### 4.2 `context-map-architecture`
 
@@ -354,7 +352,6 @@ Outline:
 | `context-map-builder` | **삭제 + reference 흡수** | Step 2d |
 | `claude-md-improver` (vendored Apache-2.0) | **삭제 + 적극 흡수** (라이센스 attribution 유지) | Step 2d |
 | `harness-resource-design` | **재편 → `resource-design`** | Step 3 |
-| `claude-automation-recommender` (vendored Apache-2.0) | 유지 — `resource-design` 의 reference | Step 3 |
 | `agent-skill-designer` subagent | **삭제** (책임 흡수, dead asset 회피) | Step 3d |
 | `agent-skill-auditor` subagent | 유지 — `evaluation-loop-design` 의 reference | Step 4 |
 | `skill-creator` | 유지 — spec 인터페이스 호환 확인 | Step 7 |

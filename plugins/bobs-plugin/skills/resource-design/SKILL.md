@@ -21,7 +21,6 @@ Claude harness 작업 패턴에 어떤 자원 (command / skill / agent / hook / 
 - 평가 인프라 (eval loop / GAP report 표준화) → `evaluation-loop-design`.
 - 정적 rule 감사 (P0/P1/P2 + rule ID + confidence) → `agent-skill-auditor`.
 - 코드 / PR 리뷰 → `pr-review-toolkit` / `codex-reviewer`.
-- ecosystem 자동화 추천 (어떤 도구를 도입할지) → vendored `claude-automation-recommender` 단독 호출.
 
 ## Capability Procedure
 
@@ -69,7 +68,6 @@ In-flight escape hatches — 결정 중 다른 design skill 로 전환:
 | docs-tree (AGENTS.md / CLAUDE.md / 라우팅 표) 설계가 핵심 | `context-map-architecture` |
 | 평가 loop / GAP report 표준화 | `evaluation-loop-design` |
 | 정적 rule 감사만 필요 | `agent-skill-auditor` |
-| ecosystem 추천만 필요 | vendored `claude-automation-recommender` |
 
 자원 타입별 세부 패턴이 필요하면 `decision-rules.md` index 를 보고 normative GUIDE (`${CLAUDE_PLUGIN_ROOT}/references/{SKILL,AGENT,COMMAND,HOOK,RUNTIME}-GUIDE.md`) 의 해당 § 만 직접 읽는다.
 
@@ -117,7 +115,7 @@ spec_path: <absolute path> | inline
 spec_version: v1
 resources: <N>
 execution_plan_items: <N>
-follow_ups: <optional — claude-automation-recommender ecosystem cite 필요 / inventory 미완 등>
+follow_ups: <optional — inventory 미완 / 사용자 의도 모호 등>
 ```
 
 **no-op** — 기존 자원으로 충분:
@@ -149,7 +147,7 @@ items:
 - **자원 타입을 *기능 친밀도* 로 결정** → command 가 적합한데 skill 로 권고. *작업 유형* (반복 / 일회성 / 격리 / 결정론 / 명시 호출) 으로 결정한다.
 - **선택 순서 무시** → skill 부터 검토. CONSTITUTION §4 순서는 *CLAUDE.md → runtime → command → hook → agent → skill* — skill 은 마지막.
 - **Phase 3 gate 생략** → spec 출력 후 곧바로 dispatch 권유. 호출자가 spec 검토 기회를 잃는다. 1 단계 gate 는 spec 검토, 2 단계 gate 는 creator skill 의 effect gate.
-- **5 sibling design skill 과 책임 혼동** — `context-map-architecture` (docs-tree), `evaluation-loop-design` (eval 인프라), `agent-skill-auditor` (정적 감사), `claude-automation-recommender` (ecosystem 추천), `skill-creator` / `agent-creator` / `hook-creator` (자원 본문 작성). escape hatch 표 · When NOT 섹션 참조.
+- **sibling design skill 과 책임 혼동** — `context-map-architecture` (docs-tree), `evaluation-loop-design` (eval 인프라), `agent-skill-auditor` (정적 감사), `skill-creator` / `agent-creator` / `hook-creator` (자원 본문 작성). escape hatch 표 · When NOT 섹션 참조.
 - **Description-as-runbook** — 본 SKILL.md 의 description 이 절차를 요약하면 호출자가 본문을 읽지 않고 description 만 따라 단축 실행. description 은 activation signal 만.
 - **Rule index 본문 재생산** — references 안에 GUIDE 규칙을 복사하면 drift 발생. `decision-rules.md` 는 *index only*, 규칙 본문은 항상 normative GUIDE.
 
@@ -170,5 +168,3 @@ Normative source 직접 참조 — `${CLAUDE_PLUGIN_ROOT}/references/`:
 - `CONSTITUTION.md` — 5-asset taxonomy + 공통 원칙 + 선택 순서.
 - `SKILL-GUIDE.md` / `AGENT-GUIDE.md` / `COMMAND-GUIDE.md` / `HOOK-GUIDE.md` / `RUNTIME-GUIDE.md` — 타입별 frontmatter / body / anti-patterns.
 - `GAP-FORMAT.md` — finding 유형 / severity.
-
-vendored `claude-automation-recommender` skill 은 본 스킬의 reference 가 아니며, ecosystem 자동화 추천이 필요할 때 main session 이 별도로 한 줄 cite 한다.

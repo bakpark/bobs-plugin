@@ -62,7 +62,7 @@
 - `<repo>/.claude/settings.json` (hook 등록 + runtime settings)
 - `<repo>/.claude/commands/`, `plugins/*/commands/` (command inventory)
 - 사용자 발화의 작업 컨텍스트 (반복 / 일회성 / 격리 / 결정론 / 명시 호출 / 권한 정책)
-- 참고 자산: `references/decision-rules.md` (5-asset taxonomy + 주제 → GUIDE 위치 index), `references/intent-capture.md` (트리거 판단 + escape hatch + 결정 절차), normative GUIDE 직접 참조 (`${CLAUDE_PLUGIN_ROOT}/references/{CONSTITUTION,SKILL,AGENT,COMMAND,HOOK,RUNTIME}-GUIDE.md`), vendored `claude-automation-recommender` (ecosystem 추천)
+- 참고 자산: `references/decision-rules.md` (5-asset taxonomy + 주제 → GUIDE 위치 index), `references/intent-capture.md` (트리거 판단 + escape hatch + 결정 절차), normative GUIDE 직접 참조 (`${CLAUDE_PLUGIN_ROOT}/references/{CONSTITUTION,SKILL,AGENT,COMMAND,HOOK,RUNTIME}-GUIDE.md`)
 
 **Spec format** (workflow doc §4 의 공통 인터페이스 적용):
 
@@ -89,7 +89,7 @@
 
 **Handoff**:
 
-- 출력: spec markdown + follow-ups (예: `claude-automation-recommender` ecosystem 추천이 필요 / 자원 inventory 가 불완전 / 사용자 의도가 모호)
+- 출력: spec markdown + follow-ups (예: 자원 inventory 가 불완전 / 사용자 의도가 모호)
 - main session 은 Execution Plan 의 `target` / `args` / `rationale` 를 §4 파싱 규칙으로 처리해 dispatch
 - no-op: 기존 자원으로 충분 + 새 자원 불필요 → `mode: no-op` + 사유
 - needs_input: `category: design | inventory` — design 은 자원 타입 결정 모호 (사용자 의도 캡처 질문), inventory 는 접근 불가 디렉토리 / 권한 부족 / 외부 도구 정보 누락 (환경 보완 요청). 호출자는 동일하게 사용자에게 질문하되 category 로 톤 분기

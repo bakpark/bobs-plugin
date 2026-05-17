@@ -1,6 +1,6 @@
 # bobs-plugin marketplace
 
-A single-plugin Claude Code marketplace shipping `bobs-plugin`. The plugin bundles one harness agent, in-house design + authoring skills (`resource-design`, `context-map-architecture`, `evaluation-loop-design`, `skill-creator`, `agent-creator`, `hook-creator`), and one vendored upstream skill (`claude-automation-recommender`, Apache-2.0) so the whole harness-design / authoring workflow is available from one install.
+A single-plugin Claude Code marketplace shipping `bobs-plugin`. The plugin bundles one harness agent and in-house design + authoring skills (`resource-design`, `context-map-architecture`, `evaluation-loop-design`, `skill-creator`, `agent-creator`, `hook-creator`) so the whole harness-design / authoring workflow is available from one install.
 
 ## Layout
 
@@ -16,8 +16,7 @@ bobs-plugin/                              ← marketplace repo root
 │       │   ├── resource-design/              (in-house)
 │       │   ├── context-map-architecture/    (in-house)
 │       │   ├── evaluation-loop-design/      (in-house)
-│       │   ├── skill-creator/                (vendored — Apache-2.0)
-│       │   └── claude-automation-recommender/(vendored — Apache-2.0)
+│       │   └── skill-creator/                (vendored — Apache-2.0)
 │       ├── references/                    ← constitution + guides + analyzed OSS snapshots
 │       │   ├── CONSTITUTION.md
 │       │   ├── SKILL-GUIDE.md / AGENT-GUIDE.md / COMMAND-GUIDE.md / HOOK-GUIDE.md / RUNTIME-GUIDE.md
@@ -27,7 +26,6 @@ bobs-plugin/                              ← marketplace repo root
 │       │   └── v1/  v2/                    ← cycle archives + GAP reports
 │       └── third_party_licenses/
 │           ├── skill-creator-LICENSE
-│           ├── claude-code-setup-LICENSE
 │           └── claude-md-management-LICENSE
 ├── LICENSE
 ├── THIRD_PARTY_NOTICES.md
@@ -48,7 +46,6 @@ bobs-plugin/                              ← marketplace repo root
 | `context-map-architecture` | in-house | Design + write the docs tree (AGENTS.md / CLAUDE.md / docs/agent/context-map.md / etc.). Absorbs the former `agents-md-author`, `context-map-builder`, and vendored `claude-md-improver` (see THIRD_PARTY_NOTICES.md for Apache-2.0 attribution). |
 | `evaluation-loop-design` | in-house | Design + write the evaluation infrastructure (`docs/agent/roles.md` body / `evaluation-loop.md` / `golden-set.md` / `task-log-template.md`). Self-writing skill — direct file write, no creator dispatch. |
 | `skill-creator` | vendored from `claude-plugins-official/skill-creator` (Apache-2.0) | Create / iterate / eval / benchmark skills. |
-| `claude-automation-recommender` | vendored from `claude-plugins-official/claude-code-setup` (Apache-2.0) | Recommend hooks / subagents / skills / plugins / MCP servers for a codebase. |
 
 The plugin's constitution + five resource guides ship under `plugins/bobs-plugin/references/` so the auditor and designer are self-contained — no `~/.claude/research/` dependency.
 
@@ -67,7 +64,6 @@ Every analyzed asset lives in one of the marketplaces installed at `~/.claude/pl
 | `writing-skills` | `claude-plugins-official / superpowers` | Skill authoring discipline → SKILL-GUIDE structure, `skill-creator` red-green-refactor |
 | `using-git-worktrees` | `claude-plugins-official / superpowers` | Isolation + cleanup pattern → pressure scenarios in `agent-creator` |
 | `skill-creator` | `claude-plugins-official / skill-creator` | Directly vendored + analyzed → seeded our in-house `skill-creator` and trigger-eval |
-| `claude-automation-recommender` | `claude-plugins-official / claude-code-setup` | Recommender output contract → vendored as-is into this plugin |
 | `claude-md-improver` | `claude-plugins-official / claude-md-management` | Docs-tree audit pattern → absorbed by in-house `context-map-architecture` |
 | `frontend-design` | `claude-plugins-official / frontend-design` | Domain-specific skill example → SKILL-GUIDE "domain capability" antipattern checks |
 
@@ -112,7 +108,7 @@ claude --plugin-dir /Users/macpro/dev/bobs-plugin/plugins/bobs-plugin
 
 After install:
 
-- Skills resolve as `/bobs-plugin:resource-design`, `/bobs-plugin:context-map-architecture`, `/bobs-plugin:evaluation-loop-design`, `/bobs-plugin:skill-creator`, `/bobs-plugin:claude-automation-recommender`.
+- Skills resolve as `/bobs-plugin:resource-design`, `/bobs-plugin:context-map-architecture`, `/bobs-plugin:evaluation-loop-design`, `/bobs-plugin:skill-creator`.
 - Agent `agent-skill-auditor` appears in `/agents`.
 
 ## Licensing
@@ -125,5 +121,5 @@ After install:
 After verifying the plugin loads:
 
 - The user-scope copies at `~/.claude/agents/agent-skill-auditor.md` and any prior `~/.claude/agents/agent-skill-designer.md` / `~/.claude/skills/harness-resource-design/` from older installs can be removed.
-- The marketplace copies of `skill-creator` and `claude-automation-recommender` can be uninstalled if you want this plugin to be the sole provider (otherwise both will appear under their respective namespaces and Claude will route based on description match).
+- The marketplace copy of `skill-creator` can be uninstalled if you want this plugin to be the sole provider (otherwise it will appear under both namespaces and Claude will route based on description match).
 - The bundled GUIDE is frozen at plugin v0.1.0; bump the plugin version when refreshing it from the research source.

@@ -23,6 +23,8 @@ CONSTITUTION.md
 
 스킬, 에이전트, 커맨드, 훅, 런타임 설정은 모두 AI agent 의 행동을 안정화하기 위한 하네스 구성 자산이다.
 
+본 표의 5 자산 위에는 **`docs` source-of-truth layer** 가 있다. 자산은 docs 를 입력으로 *소비* 하며, runtime 이 변경되어도 docs 는 보존되고 자산은 runtime 에 맞춰 재작성된다 (§3.14 ~ §3.16). docs 의 세부 분류와 책임은 `harness-principles.md §4.1` 을 따른다.
+
 | 자산 | 공통 관점에서의 역할 |
 |---|---|
 | 스킬 | 필요할 때 로드되는 판단 절차와 방법론 |
@@ -192,6 +194,8 @@ CLAUDE.md 또는 project memory 에 둘 것:
 
 스킬, 에이전트, 훅은 project memory 를 읽을 수는 있지만, 프로젝트 고유 규칙을 일반 규칙처럼 하드코딩하면 재사용성이 떨어진다.
 
+같은 지식이 docs 와 자산에 동시 존재하면 docs 가 canonical 이다. CLAUDE.md 와 하네스 자산은 docs 를 참조하는 layer 이며 source of truth 가 아니다 (자세히는 §3.14).
+
 ### 3.7 Progressive Disclosure Protects Context
 
 자산은 필요한 정보만 필요한 시점에 드러내야 한다.
@@ -328,6 +332,51 @@ AI agent runtime 은 빠르게 변한다. hook schema, frontmatter 필드, permi
 - 재검증해야 하는 조건
 
 확인하지 못한 platform behavior 는 hard rule 로 쓰지 않는다. 이 경우 `unknown`, `needs verification`, `implementation-time check required` 로 표시한다.
+
+### 3.14 Docs Are The Source Of Truth
+
+같은 지식이 docs 와 하네스 자산에 모두 있으면 docs 가 canonical 이다.
+
+원칙:
+
+- 하네스 자산은 docs 를 참조하되 본문을 복제하지 않는다.
+- docs 와 자산이 충돌하면 docs 가 이긴다. 자산 본문이 docs 보다 새로워졌다면 docs 부터 갱신한다.
+- docs 의 위치, 인덱스, freshness 는 자산보다 우선 보장된다.
+- 단발성 결정이나 회고를 자산 본문에 끼워넣지 않는다. 그것은 `docs/decisions/` 의 영역이다.
+- 자산 본문이 길어 보이는 이유가 *docs 본문을 복사해 들고 있어서* 라면, 자산이 아니라 docs 참조로 줄인다.
+
+자산은 docs 의 reader 이지 owner 가 아니다. docs 는 사람과 모든 AI agent 가 같이 읽는 것을 우선하며, 특정 자산이 잘 읽도록 다듬어지지 않는다.
+
+### 3.15 Docs Are Runtime-Independent
+
+docs 는 특정 runtime 의 schema, frontmatter, event 이름, 권한 DSL 을 가정하지 않는다.
+
+layer 구분:
+
+- **Pure project docs** (`docs/architecture`, `docs/domain`, `docs/decisions`, `docs/specs`, `docs/integrations`, `docs/security`): runtime 무관. 사람과 모든 AI 도구가 읽는다. runtime swap 시 *보존*.
+- **Harness-portable docs** (`AGENTS.md`, `README.md`): 여러 AI 도구가 공유하는 작업 계약. runtime 변경 시 거의 보존.
+- **Runtime-coupled docs** (`CLAUDE.md`, memory store): 특정 runtime 의 자동 로드 규칙에 묶임. runtime 변경 시 재맵핑 필요.
+
+원칙:
+
+- 영구 보존할 지식은 pure project docs 에 둔다.
+- runtime-coupled docs 에는 *해당 runtime 의 운용 지침* 만 둔다. 도메인 지식과 결정 근거는 pure docs 로 승격한다.
+- docs 본문에 hook 이벤트 이름, frontmatter 필드, 권한 키 같은 runtime schema 를 인용할 때는 `RUNTIME-GUIDE.md §9 Freshness` 의 검증 표기(`verified: <runtime> <version>, checked <date>, source: <url>`)를 붙인다.
+
+이 구분은 runtime 을 갈아끼울 때 무엇이 보존되고 무엇이 재작성되는지를 명확하게 한다.
+
+### 3.16 Authority Flows Upstream
+
+권위 방향은 단방향이다: `docs → 하네스 자산`.
+
+원칙:
+
+- 자산은 docs 를 *입력으로 소비* 한다. docs 는 어느 자산이 자신을 읽을지 모른다.
+- 자산은 docs 의 경로와 selector 를 참조하되 docs 본문을 자산 안에 영구 저장하지 않는다.
+- docs 가 변경되면 자산은 따라가야 한다. 자산 변경을 이유로 docs 를 거꾸로 맞추지 않는다.
+- 새 자산을 만들 때 첫 질문은 "어느 doc 을 읽을 것인가" 다. 어느 doc 도 읽지 않는 자산은 재사용성을 의심한다.
+
+runtime 변경 비용은 이 단방향성 때문에 비대칭이다. 자산은 runtime swap 시 재작성될 수 있지만, docs 는 그대로 다음 runtime 의 자산에게 source of truth 가 된다. 이 비대칭이 docs 를 *영구 layer* 로 만든다.
 
 ---
 
