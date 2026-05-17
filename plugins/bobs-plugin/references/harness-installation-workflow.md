@@ -251,14 +251,64 @@ needs_input:
 
 ## 5. Phase 2 Execution Skills
 
-TBD per Step 5 (`evaluation-loop-runner`) + Step 7 (creator skills 호환 확인).
+TBD per Step 7 (§5.1 creator skills args 호환 확인 — §5.1 본문 정리는 Step 6 책임).
 
-- 5.1 `skill-creator` / `agent-creator` / `hook-creator` (GAP-driven, spec 입력 받음). 각 creator 의 §3-§4 는 `creator-gap-eval` skill 호출 (Step 4b 추출) — `resource_type` args (skill / agent / hook) 로 분기, Final Decision (PASS / PASS_WITH_NOTES / REVISE_ASSET / REVISE_GUIDE / SPLIT_ASSET / DEPRECATE_ASSET / NEEDS_REVIEW) 반환받아 §5 진행 또는 재호출. workspace 는 plugin-unified `${CLAUDE_PLUGIN_ROOT}/skills/creator-gap-eval-workspace/gaps/` 에 누적
-- 5.2 `evaluation-loop-runner` (runtime — task log + gap 라우팅)
+### 5.1 Creator skills — `skill-creator` / `agent-creator` / `hook-creator`
+
+GAP-driven, spec 입력 받음. 각 creator 의 §3-§4 는 `creator-gap-eval` skill 호출 (Step 4b 추출) — `resource_type` args (skill / agent / hook) 로 분기, Final Decision (PASS / PASS_WITH_NOTES / REVISE_ASSET / REVISE_GUIDE / SPLIT_ASSET / DEPRECATE_ASSET / NEEDS_REVIEW) 반환받아 §5 (Output to caller) 진행 또는 재호출. workspace 는 plugin-unified `${CLAUDE_PLUGIN_ROOT}/skills/creator-gap-eval-workspace/gaps/` 에 누적.
+
+상세 본문 (역할 / 입력 args / 호출 패턴 / 산출 contract / args 표) 은 Step 6 plan Task 2 가 채움 — 본 §5.1 은 Step 4b 까지의 진실만 명시.
+
+### 5.2 `evaluation-loop-runner` — runtime cycle
+
+**역할**: Phase 1 design skill 의 산출 (`docs/agent/{evaluation-loop,golden-set,task-log-template}.md` 명세) 를 *실행 시점* 에 적용. design skill 은 *명세* 만 작성, 본 runner 가 *명세대로 실행*. runner 는 *stateless* — 한 호출마다 task log entry write + gap 분석 + Routing Decision 한 묶음만 반환. 자동 chain 은 *main session 책임* (라운드 카운터 유지 + 종료 조건 enforce).
+
+**입력 trigger** (spec §10 Decision 5 명시 호출 우선):
+
+1. 사용자 명시 호출 (`/evaluation-loop-runner` 또는 동등 command)
+2. 자동 chain — 이전 사이클의 *Next Action* 이 *다음 design skill* 을 가리키면 main session 이 chain
+3. (간접) Hook 트리거 — hook 은 *사용자에게 알림* 만 발생, runner 호출은 사용자 또는 main session 결정 (spec §9.2 + §10 Decision 5 — hook → runner 자동 호출 금지)
+
+**Capability Procedure** (3-phase, `docs/agent/evaluation-loop.md` 명세 따름):
+
+1. Phase 1 — task log capture: `docs/agent/task-log-template.md` schema 따라 `docs/agent/logs/YYYY-MM-DD-<slug>.md` entry write
+2. Phase 2 — gap 분석: `docs/agent/golden-set.md` case 와 entry 비교. 5종 표면 (PASS / FAIL / no-op / blocked / needs_input) 분류
+3. Phase 3 — Routing Decision: `docs/agent/evaluation-loop.md` Routing Decision 표 행 선택 + Next Action 결정
+
+**산출 contract** (spec §4.4 4 섹션 정확):
+
+```yaml
+mode: cycled | no-op | needs_input | blocked
+task_log_entry: <abs path to docs/agent/logs/*.md>     # Phase 1 산출
+gap_analysis:                                          # Phase 2 산출
+  case_id: <golden-set case ID 또는 unknown>
+  result: PASS | FAIL | no-op | blocked | needs_input
+  summary: <한 줄>
+routing_decision: <design skill name 또는 no-op>       # Phase 3 산출
+next_action:                                           # Phase 3 산출
+  target: <design skill name>
+  input:
+    prior_task_log: <abs path>
+    gap_summary: <한 줄>
+round: <N>     # main session 이 stateless runner 에 매 호출마다 증가시켜 전달
+```
+
+**복수 신호 우선순위**: `blocked` > `needs_input` > `no-op` > `cycled` (자원 부재가 가장 강한 신호).
+
+**Effect** (CONSTITUTION §3.3 이중 gate):
+
+- 1단계 (호출 자체) — runner 호출이 명시 호출 또는 자동 chain — main session 이 호출 전 사용자 의도 확인 (자동 chain 중 종료 조건 enforce 가 1단계 역할)
+- 2단계 (apply) — task log entry write 직전 경로·내용 요약 1회 응답 기록 (disclosure-only 가능)
+
+**docs/agent body 부재 시**: `mode: blocked` + `needs_input` ("`evaluation-loop-design` 먼저 호출해 검증 자산 작성 필요"). runner 는 *명세 실행자* 이지 *명세 작성자* 아님.
+
+**`docs/agent/logs/` 부재 시**: runner 의 Phase 1 가 lazy mkdir (design 의 `task-log-template-write.md` §보존 정책 명시).
+
+자동 chain + 종료 조건 4종 enforce 절차는 §6 (Step 6 채움 — Cycle Runtime → 재진입) 참조.
 
 ## 6. Cycle — Runtime → 재진입
 
-TBD per Step 5.
+TBD per Step 6 (§5.2 runner 본문은 Step 5 완료 — Step 6 의 chain 절차 본문이 본 §6 채움).
 
 `evaluation-loop-runner` 의 Routing Decision → 적절한 design skill 으로 재진입 사이클.
 
