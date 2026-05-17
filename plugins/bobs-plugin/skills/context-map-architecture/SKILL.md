@@ -24,7 +24,7 @@ user-invocable: true
 
 - 자원 타입 결정 (skill / agent / hook / docs 중 무엇?) → `resource-design`.
 - 개별 skill / agent / hook 파일 작성 → `skill-creator` / `agent-creator` / `hook-creator`.
-- 검증 인프라 (task log / golden-set / 사이클) → `evaluation-loop-design` (예정).
+- 검증 인프라 (task log / golden-set / 사이클 / `docs/agent/roles.md` body) → `evaluation-loop-design`.
 - `docs/architecture.md` / `docs/domain/` 의 *본문 prose* — 본 스킬은 *skeleton* (섹션 헤더 + placeholder + 안내 코멘트) 까지만 작성. 본문 prose 는 사람 / 후속 작업.
 - 외부 모델 의견 / PR 리뷰 → `codex-reviewer` / `pr-review-toolkit`.
 

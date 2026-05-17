@@ -1,6 +1,6 @@
 # bobs-plugin marketplace
 
-A single-plugin Claude Code marketplace shipping `bobs-plugin`. The plugin bundles one harness agent, in-house design + authoring skills (`resource-design`, `context-map-architecture`, `skill-creator`, `agent-creator`, `hook-creator`), and one vendored upstream skill (`claude-automation-recommender`, Apache-2.0) so the whole harness-design / authoring workflow is available from one install.
+A single-plugin Claude Code marketplace shipping `bobs-plugin`. The plugin bundles one harness agent, in-house design + authoring skills (`resource-design`, `context-map-architecture`, `evaluation-loop-design`, `skill-creator`, `agent-creator`, `hook-creator`), and one vendored upstream skill (`claude-automation-recommender`, Apache-2.0) so the whole harness-design / authoring workflow is available from one install.
 
 ## Layout
 
@@ -14,9 +14,10 @@ bobs-plugin/                              ← marketplace repo root
 │       │   └── agent-skill-auditor.md
 │       ├── skills/
 │       │   ├── resource-design/              (in-house)
+│       │   ├── context-map-architecture/    (in-house)
+│       │   ├── evaluation-loop-design/      (in-house)
 │       │   ├── skill-creator/                (vendored — Apache-2.0)
-│       │   ├── claude-automation-recommender/(vendored — Apache-2.0)
-│       │   └── context-map-architecture/    (in-house)
+│       │   └── claude-automation-recommender/(vendored — Apache-2.0)
 │       ├── references/                    ← constitution + guides + analyzed OSS snapshots
 │       │   ├── CONSTITUTION.md
 │       │   ├── SKILL-GUIDE.md / AGENT-GUIDE.md / COMMAND-GUIDE.md / HOOK-GUIDE.md / RUNTIME-GUIDE.md
@@ -44,9 +45,10 @@ bobs-plugin/                              ← marketplace repo root
 | Skill | Origin | Purpose |
 | :--- | :--- | :--- |
 | `resource-design` | in-house | Decide which resource type (command / skill / agent / hook / runtime settings / plugin) a work pattern needs + responsibility split + Execution Plan for creator-skill dispatch. Absorbs the former `harness-resource-design` skill and `agent-skill-designer` subagent. |
+| `context-map-architecture` | in-house | Design + write the docs tree (AGENTS.md / CLAUDE.md / docs/agent/context-map.md / etc.). Absorbs the former `agents-md-author`, `context-map-builder`, and vendored `claude-md-improver` (see THIRD_PARTY_NOTICES.md for Apache-2.0 attribution). |
+| `evaluation-loop-design` | in-house | Design + write the evaluation infrastructure (`docs/agent/roles.md` body / `evaluation-loop.md` / `golden-set.md` / `task-log-template.md`). Self-writing skill — direct file write, no creator dispatch. |
 | `skill-creator` | vendored from `claude-plugins-official/skill-creator` (Apache-2.0) | Create / iterate / eval / benchmark skills. |
 | `claude-automation-recommender` | vendored from `claude-plugins-official/claude-code-setup` (Apache-2.0) | Recommend hooks / subagents / skills / plugins / MCP servers for a codebase. |
-| `context-map-architecture` | in-house | Design + write the docs tree (AGENTS.md / CLAUDE.md / docs/agent/context-map.md / etc.). Absorbs the former `agents-md-author`, `context-map-builder`, and vendored `claude-md-improver` (see THIRD_PARTY_NOTICES.md for Apache-2.0 attribution). |
 
 The plugin's constitution + five resource guides ship under `plugins/bobs-plugin/references/` so the auditor and designer are self-contained — no `~/.claude/research/` dependency.
 
@@ -110,12 +112,12 @@ claude --plugin-dir /Users/macpro/dev/bobs-plugin/plugins/bobs-plugin
 
 After install:
 
-- Skills resolve as `/bobs-plugin:resource-design`, `/bobs-plugin:context-map-architecture`, `/bobs-plugin:skill-creator`, `/bobs-plugin:claude-automation-recommender`.
+- Skills resolve as `/bobs-plugin:resource-design`, `/bobs-plugin:context-map-architecture`, `/bobs-plugin:evaluation-loop-design`, `/bobs-plugin:skill-creator`, `/bobs-plugin:claude-automation-recommender`.
 - Agent `agent-skill-auditor` appears in `/agents`.
 
 ## Licensing
 
-- Root `LICENSE` (MIT) covers original work: manifests, README, the GUIDE snapshot, the `resource-design` / `context-map-architecture` / `skill-creator` / `agent-creator` / `hook-creator` skills, and the `agent-skill-auditor` agent.
+- Root `LICENSE` (MIT) covers original work: manifests, README, the GUIDE snapshot, the `resource-design` / `context-map-architecture` / `evaluation-loop-design` / `skill-creator` / `agent-creator` / `hook-creator` skills, and the `agent-skill-auditor` agent.
 - Vendored skills remain under their upstream Apache-2.0 license — see [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) and the preserved `LICENSE` copies under `plugins/bobs-plugin/third_party_licenses/`.
 
 ## Migration notes
