@@ -213,5 +213,5 @@ Normative source 직접 참조 (`${CLAUDE_PLUGIN_ROOT}/references/`):
 
 - `GAP-FORMAT.md` — §1/§6/§7 적용 기준 + §11.X Snapshot + §12.X Checks + §17 Self-Check + §16 Final Decision.
 - `GAP-ANALYSIS-PROMPT.md` — Phase 3 envelope 의 9 heading 본문 source.
-- `CONSTITUTION.md` §3.3 Effects Require Gates + §3.7 Progressive Disclosure.
+- `CONSTITUTION.md` §3.3 Effects Require Gates + §3.7 Progressive Disclosure + §3.7.1 Outcomes And Constraints Before Routes.
 - `SKILL-GUIDE.md` / `AGENT-GUIDE.md` / `HOOK-GUIDE.md` — matrix `guide_name` 행에 따라 자원-타입별 직접 참조.

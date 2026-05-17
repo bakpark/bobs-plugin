@@ -139,7 +139,7 @@ items:
 
 호출자는 항상 *사용자에게 묻는다* 라는 동일 후처리를 하되, `category` 로 질문 톤을 분기 (design = 의도 캡처, inventory = 환경 보완).
 
-세부 spec 본문은 응답에 풀어 쓰지 말고 spec_path 만 안내한다 — main context 절약 (CONSTITUTION §3.7.1 Context Is A Managed Resource).
+세부 spec 본문은 응답에 풀어 쓰지 말고 spec_path 만 안내한다 — main context 절약 (CONSTITUTION §3.7.2 Context Is A Managed Resource).
 
 ## Common Failures
 

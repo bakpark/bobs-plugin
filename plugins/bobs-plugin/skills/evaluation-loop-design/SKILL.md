@@ -159,7 +159,7 @@ follow_ups:
 
 **Plan-only case**: 사용자가 Phase 2 까지만 요청 (Verification Plan 검토 후 보류) → `mode: plan-only` + spec 본문 반환. Phase 3 는 다음 호출에서.
 
-세부 spec 본문은 응답에 풀어 쓰지 말고 spec_path 만 안내한다 — main context 절약 (CONSTITUTION §3.7.1).
+세부 spec 본문은 응답에 풀어 쓰지 말고 spec_path 만 안내한다 — main context 절약 (CONSTITUTION §3.7.2).
 
 ## Common Failures
 

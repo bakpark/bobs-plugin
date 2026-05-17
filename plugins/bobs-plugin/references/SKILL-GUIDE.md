@@ -209,6 +209,8 @@ description: Use for skill creation - gather requirements, write SKILL.md, run e
 
 형식보다 중요한 것은 읽은 뒤 바로 행동이 바뀌는가다.
 
+본문은 capability 가 보장해야 할 결과와 제약을 먼저 둔다. routine path 는 과도하게 고정하지 않는다. 예를 들어 "반드시 A 파일을 읽고 B 명령을 실행한 뒤 C를 작성" 같은 route 는 안전 gate, protocol contract, 반복 실패 방지처럼 경로 자체가 중요한 경우에만 둔다. 그 외에는 입력 판단 기준, hard constraints, output contract, escalation 조건을 명확히 하고 실행 순서는 호출 시점의 맥락에 맡긴다.
+
 Gotchas 는 장식 섹션이 아니다. 모델이 기본값으로 이미 잘하는 내용이나 일반론을 반복하지 말고, 실제 실패를 줄이는 정보만 둔다. 스킬이 외부 계정, API key, project config, plugin data 를 필요로 하면 setup/config 경로와 missing-config 질문을 명시한다.
 
 ---

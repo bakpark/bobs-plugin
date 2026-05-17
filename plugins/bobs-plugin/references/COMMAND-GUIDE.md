@@ -155,6 +155,7 @@ model: sonnet
 - command 가 긴 문서 본문 전체를 main context 에 복사한다.
 - 실패 시 무한 재시도하거나 Stop hook/auto loop 를 숨겨서 발동한다.
 - command 가 permission mode 나 broad tool 권한을 전제로 안전 gate 를 생략한다.
+- command 가 하위 skill/agent 의 내부 탐색 순서와 구현 경로까지 세부 처방한다.
 
 위임 contract 에 포함할 것:
 - 호출 대상
@@ -163,6 +164,8 @@ model: sonnet
 - 기대하는 결과 형식
 - 실패 또는 invalid output 처리
 - caller 가 통합 판단을 맡는다는 사실
+
+command 는 workflow boundary 를 소유하지만 하위 자산의 전문 판단을 대체하지 않는다. 하위 자산에는 목표, 입력, hard constraints, output contract 를 넘기고, 안전이나 protocol 때문에 필요한 경우에만 route 를 제한한다.
 
 ---
 

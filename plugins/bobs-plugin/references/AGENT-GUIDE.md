@@ -144,6 +144,8 @@ confidence, filtering, verification, advisory-only rule
 
 섹션명은 유연하다. `Output Guidance`, `Report`, `Return`, `Analysis Output` 도 output contract 로 인정된다.
 
+에이전트 본문은 runbook 이 아니라 specialist 계약이다. 무엇을 판단할지, 어떤 입력 범위에서 일할지, 어떤 품질 gate 와 출력 형식을 지킬지를 명확히 하고, routine 한 탐색 순서나 도구 사용 순서는 과도하게 고정하지 않는다. 특정 순서를 강제해야 한다면 safety, protocol, reproducibility, 이전 실패 방지 중 어떤 이유인지 함께 적는다.
+
 ---
 
 ## 5. Scope 설계

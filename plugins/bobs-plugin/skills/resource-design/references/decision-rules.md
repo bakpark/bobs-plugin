@@ -51,7 +51,8 @@ CONSTITUTION §1 의 *core 5 자산* + plugin (배포 묶음). plugin 은 별도
 | Capability Surface | CONSTITUTION §3.5 |
 | Reusable Knowledge vs Local Memory | CONSTITUTION §3.6 |
 | Progressive Disclosure | CONSTITUTION §3.7 |
-| Context Is A Managed Resource | CONSTITUTION §3.7.1 |
+| Outcomes And Constraints Before Routes | CONSTITUTION §3.7.1 |
+| Context Is A Managed Resource | CONSTITUTION §3.7.2 |
 | Strong Language Belongs To Real Gates | CONSTITUTION §3.8 |
 | Behavior Must Be Verifiable | CONSTITUTION §3.9 |
 | Overlap Must Be Intentional | CONSTITUTION §3.10 |

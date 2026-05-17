@@ -209,7 +209,19 @@ CLAUDE.md 또는 project memory 에 둘 것:
 
 길이 자체는 실패가 아니다. 문제는 자주 로드되는 정보가 핵심 행동을 가리거나, 선택적으로 읽어도 되는 자료가 항상 context 를 차지하는 것이다.
 
-### 3.7.1 Context Is A Managed Resource
+### 3.7.1 Outcomes And Constraints Before Routes
+
+자산은 성공 기준, hard constraints, output contract, escalation 조건을 먼저 드러내야 한다. 일반적인 탐색 순서, 도구 선택, 구현 경로는 그 결과와 제약 안에서 agent 가 판단하게 둔다.
+
+세부 route 를 고정해야 하는 경우:
+
+- 안전 gate, 승인 gate, secret 보호, destructive action 차단처럼 우회되면 위험한 절차
+- runtime schema, file format, protocol 처럼 순서나 형식이 contract 인 절차
+- 이전 실패가 반복되어 특정 경로를 금지하거나 요구해야 하는 경우
+
+그 밖의 routine work 는 "무엇을 보장할지" 를 쓰고 "항상 어떤 순서로 할지" 는 과도하게 처방하지 않는다.
+
+### 3.7.2 Context Is A Managed Resource
 
 컨텍스트는 무한한 저장소가 아니라 관리해야 하는 자원이다.
 
