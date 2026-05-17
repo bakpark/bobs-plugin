@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 외부 review (qwen/gpt5/opus 중 하나) 의 P2 권고 4건 적용 — install-harness command 신규 (orchestration 전체 wrap) + Execution Plan YAML schema 고정 + execution_mode 필드 도입 + cycle 종료 조건 정밀화. v0.2.0 의 "메인 세션이 workflow doc 따라 직접 orchestration" 패턴을 v0.3.0 에서 "/install-harness command 가 orchestration boundary" 패턴으로 승격 — CONSTITUTION §3.13 "프롬프트는 실행 경계가 아니다" 원칙 충족.
+**Goal:** 외부 review (qwen/gpt5/opus 중 하나) 의 P2 권고 4건 적용 — install-harness command 신규 (orchestration 전체 wrap) + Execution Plan YAML schema 고정 + execution_mode 필드 도입 + cycle 종료 조건 정밀화. v0.2.0 의 "메인 세션이 workflow doc 따라 직접 orchestration" 패턴을 v0.3.0 에서 "/install-harness command 가 orchestration boundary" 패턴으로 승격 — CONSTITUTION §2.1 "Prompt Is Not A Harness Boundary" 원칙 충족 (사용자 명시 호출 entrypoint 가 하네스 primitive).
 
 **Architecture:** install-harness command (Claude Code slash command 형식) 가 routing + design skill 호출 + spec 승인 gate + creator dispatch + runner cycle + 종료 조건 enforce + 사용자 보고를 한 entrypoint 로 통합. workflow doc 은 command 의 reference 로 격하 (현재는 main session 의 reference). 4 Task 는 backward-compatible 1 task (cycle 종료 정밀화) + breaking 3 task (command boundary / YAML schema / execution_mode 필드).
 
@@ -109,7 +109,7 @@
 [메인 세션이 사용자 보고]
 ```
 
-문제: 모든 책임이 "메인 세션이 잘 따라준다" — 프롬프트 boundary. CONSTITUTION §3.13 충돌.
+문제: 모든 책임이 "메인 세션이 잘 따라준다" — 프롬프트 boundary. CONSTITUTION §2.1 "Prompt Is Not A Harness Boundary" 와 충돌 (사용자 명시 호출 entrypoint 는 하네스 primitive 로 설계해야 한다는 원칙).
 
 ### After (v0.3.0)
 
@@ -152,18 +152,19 @@
 | `plugins/bobs-plugin/commands/install-harness/references/cycle.md` | Create (선택) | T1 + T4 | §4 Cycle 절차 + round counter + 종료 조건 4종 enforce + same-fingerprint 비교 (~100-150 lines) |
 | `plugins/bobs-plugin/docs/specs/2026-05-XX-harness-orchestration-v2.md` | Create (옵션 B 채택 시) | T1 | v2 spec — architecture refinement rationale + Q1-Q5 결정 + Section 1-12 (옵션 A 채택 시 v1 spec §11 또는 §12 에 통합) |
 | `plugins/bobs-plugin/references/harness-installation-workflow.md` | Edit (§1 상단 + §6) | T1 + T4 | §1 권장 entrypoint 명시 + §6 종료 조건 same-fingerprint 정밀화 |
-| `plugins/bobs-plugin/references/execution-plan-schema.md` | Create | T2 | YAML schema 정의 (target/args/rationale/execution_mode 필드) + 변형 케이스 (mode: no-op / needs_input / blocked) (~150-200 lines) |
-| `plugins/bobs-plugin/references/execution-plan-schema/fixtures/` | Create | T2 | dry-run fixture 디렉토리 |
-| `plugins/bobs-plugin/references/execution-plan-schema/fixtures/spec-a-dispatch.md` | Create | T2 | 정상 dispatch case (입력) |
-| `plugins/bobs-plugin/references/execution-plan-schema/fixtures/spec-a-dispatch.expected.yaml` | Create | T2 | 정상 dispatch case (기대 파싱) |
-| `plugins/bobs-plugin/references/execution-plan-schema/fixtures/spec-b-self-apply.md` | Create | T2 | self_apply case (context-map-architecture / evaluation-loop-design) |
-| `plugins/bobs-plugin/references/execution-plan-schema/fixtures/spec-b-self-apply.expected.yaml` | Create | T2 | 동일 |
-| `plugins/bobs-plugin/references/execution-plan-schema/fixtures/spec-c-no-op.md` | Create | T2 | no-op case |
-| `plugins/bobs-plugin/references/execution-plan-schema/fixtures/spec-c-no-op.expected.yaml` | Create | T2 | 동일 |
-| `plugins/bobs-plugin/skills/resource-design/references/design-output-contract.md` | Edit | T2 + T3 | Section 1 표준 spec 형식 → YAML schema 인용 + `execution_mode` 필드 추가 |
-| `plugins/bobs-plugin/skills/context-map-architecture/SKILL.md` | Edit | T3 | spec 산출에 `execution_mode: self_apply` 명시 (현재는 Applied Changes 섹션으로 self-apply 패턴 — 명시 필드로 승격) |
-| `plugins/bobs-plugin/skills/evaluation-loop-design/SKILL.md` | Edit | T3 | 동일 — `execution_mode: self_apply` 명시 |
-| `plugins/bobs-plugin/skills/resource-design/SKILL.md` | Edit | T3 | spec 산출에 `execution_mode: dispatch` 명시 (3 creator dispatch 패턴) |
+| `plugins/bobs-plugin/references/spec-schema.md` | Create | T2 | spec top-level mode discriminator + mode-specific payload (dispatch / self_apply / plan_only / no-op / needs_input / blocked) + design skill ↔ mode mapping (~200-250 lines) |
+| `plugins/bobs-plugin/references/spec-schema/fixtures/` | Create | T2 | dry-run fixture 디렉토리 |
+| `plugins/bobs-plugin/references/spec-schema/fixtures/spec-a-dispatch.md` | Create | T2 | dispatch mode case (입력 — resource-design 산출) |
+| `plugins/bobs-plugin/references/spec-schema/fixtures/spec-a-dispatch.expected.yaml` | Create | T2 | dispatch mode case (기대 파싱) |
+| `plugins/bobs-plugin/references/spec-schema/fixtures/spec-b-self-apply.md` | Create | T2 | self_apply mode case (context-map-architecture / evaluation-loop-design 산출) |
+| `plugins/bobs-plugin/references/spec-schema/fixtures/spec-b-self-apply.expected.yaml` | Create | T2 | 동일 |
+| `plugins/bobs-plugin/references/spec-schema/fixtures/spec-c-no-op.md` | Create | T2 | no-op mode case |
+| `plugins/bobs-plugin/references/spec-schema/fixtures/spec-c-no-op.expected.yaml` | Create | T2 | 동일 |
+| `plugins/bobs-plugin/references/spec-schema/check-fixtures.sh` | Create | T2 | parser/check script — yq (Homebrew) 또는 python3 + PyYAML fallback, 3 fixture pair 회귀 검증 (~30-50 lines) |
+| `plugins/bobs-plugin/skills/resource-design/references/design-output-contract.md` | Edit | T2 + T3 | §1.2 표준 4 섹션 헤더에 top-level `mode` 필드 명시 + design skill ↔ spec-schema mode mapping 표 추가 (3 design skill 별) |
+| `plugins/bobs-plugin/skills/context-map-architecture/SKILL.md` | Edit | T3 | Output Contract `applied | plan-only | no-op | blocked` 옆에 spec-schema 동의어 (`applied ↔ self_apply`, `plan-only ↔ plan_only`) 한 줄 추가 (옵션 A — backward-compat) |
+| `plugins/bobs-plugin/skills/evaluation-loop-design/SKILL.md` | Edit | T3 | 동일 — Output Contract `applied | plan-only | no-op | needs_input` 옆에 동의어 추가 |
+| `plugins/bobs-plugin/skills/resource-design/SKILL.md` | Edit | T3 | Output Contract 에 top-level `mode: dispatch` (default) 필드 추가 — 현재는 Execution Plan 만 있고 mode 명시 없음 |
 | `plugins/bobs-plugin/skills/evaluation-loop-runner/references/runtime-protocol.md` | Edit | T4 | §2 종료 조건 표 — "같은 design skill 2회" → "같은 target + 같은 gap fingerprint 2회" 정밀화 + fingerprint 정의 (예: `case_id + result + summary hash`) |
 | `plugins/bobs-plugin/skills/evaluation-loop-runner/SKILL.md` | Edit (1 곳) | T4 | Capability Procedure §3 Phase 3 종료 조건 인용 정밀화 |
 | `plugins/bobs-plugin/.claude-plugin/plugin.json` | Edit (version + description) | T1-T4 | 0.2.0 → 0.3.0 + description 끝 `+ /install-harness command` |
@@ -172,7 +173,7 @@
 | `plugins/bobs-plugin/docs/specs/2026-05-17-harness-installation-design.md` | Edit (§7 끝 + §11 link) | T1 (옵션 B 채택 시) | "v2 spec link" 표기 + Implemented 상태 유지 (frozen) |
 
 **유지** (변경 없음):
-- `plugins/bobs-plugin/references/{harness-principles,CONSTITUTION,SKILL-GUIDE,AGENT-GUIDE,HOOK-GUIDE,COMMAND-GUIDE,RUNTIME-GUIDE,GAP-FORMAT}.md` — normative source (CONSTITUTION §3.13 인용으로 충분)
+- `plugins/bobs-plugin/references/{harness-principles,CONSTITUTION,SKILL-GUIDE,AGENT-GUIDE,HOOK-GUIDE,COMMAND-GUIDE,RUNTIME-GUIDE,GAP-FORMAT}.md` — normative source (CONSTITUTION §2.1 "Prompt Is Not A Harness Boundary" 인용으로 충분)
 - `plugins/bobs-plugin/skills/{skill,agent,hook}-creator/SKILL.md` — args 파싱은 이미 v0.2 에서 정렬됨, T2 의 YAML schema 가 호환 (key=value 형식 그대로)
 - `plugins/bobs-plugin/skills/creator-gap-eval/SKILL.md` — 변경 없음
 - `plugins/bobs-plugin/agents/agent-skill-auditor.md` — 변경 없음 (command 도 정적 감사 대상이지만 별도 plan)
@@ -192,7 +193,19 @@
   - verify: `ls plugins/bobs-plugin/commands/install-harness/`
 
 - [ ] **1b. install-harness.md command body 작성**
-  - frontmatter: `name: install-harness`, `description: 하네스 이식 entrypoint — routing + design + gate + dispatch + cycle + report`, `user-invocable: true`
+  - frontmatter (COMMAND-GUIDE §3 Frontmatter 권장 구조 — `${CLAUDE_PLUGIN_ROOT}/references/COMMAND-GUIDE.md:60`):
+    ```yaml
+    ---
+    name: install-harness
+    description: Use when the user explicitly wants to install or refresh the harness — routing + design + gate + dispatch + cycle + report.
+    argument-hint: "[optional: 자연어 요청 또는 design skill 명시]"
+    allowed-tools: Read, Skill, Agent
+    model: sonnet
+    ---
+    ```
+    - `user-invocable: true` 는 skill frontmatter 전용 — command 에는 부적합 (commands 는 본래 user-invocable).
+    - `allowed-tools` 는 보수적으로 — command 자체는 orchestration 만, 실제 file mutation 은 design skill / creator 가 자체 권한으로 수행 (COMMAND-GUIDE :81 "command 가 호출하는 agent/skill 의 권한을 command 권한으로 우회하지 않는다").
+    - `model` 은 비용/latency trade-off — sonnet default, opus 가 필요한 경우 (예: 복잡한 routing 결정) 별도 검토.
   - body 절차 §1-§5:
     - §1 Routing — workflow doc §2 의 routing 표 *행 선택* (재생산 X, 인용만)
     - §2 Design phase — 선택된 design skill 호출 + spec 산출 받기
@@ -221,11 +234,16 @@
 - [ ] **1f. plugin.json + marketplace.json description 갱신**
   - description 끝 `+ /install-harness command (orchestration entrypoint)` 추가
 
-- [ ] **1g. GAP 분석** (skill 아닌 command 라 creator-gap-eval 비적용 — 대신 manual review)
-  - CONSTITUTION §3.1-§3.10 10 원칙 체크리스트 적용
-  - command body 의 effects gate (사용자 spec 승인) 강제 확인
-  - 의도된 deviation (이중 gate 약화 권한) 명시 — Acceptable Deviations 섹션
-  - verify: `docs/agent/logs/` 또는 별도 GAP report 작성 — Final Decision PASS / PASS_WITH_NOTES
+- [ ] **1g. command 정적 감사 (agent-skill-auditor)**
+  - agent-skill-auditor 가 command 타입을 인식하고 command 별 측정 항목을 가지고 있음:
+    - 타입 인식 (auditor §2 :54): `commands/*.md` 또는 `.claude/commands/*.md` → **command**
+    - 측정 항목 (auditor §4 :73): `name`/`description`/`argument-hint` 존재, `allowed-tools` broad 여부, Inputs/Workflow/Delegation/Effect Gate/Output Contract 본문 존재, commit/push/deploy 키워드 와 approval gate 대조
+  - 호출 방식: `Agent(subagent_type="bobs-plugin:agent-skill-auditor", prompt="audit commands/install-harness/install-harness.md (and references) — focus on COMMAND-GUIDE compliance + effect gate strength")`
+  - 출력: P0/P1/P2 finding + rule_excerpt (`COMMAND-GUIDE.md:§N` 인용)
+  - 보완 — auditor 가 commands 측정 항목만 다루므로 architecture-level 검토는 manual GAP 추가:
+    - CONSTITUTION §2.1 ("Prompt Is Not A Harness Boundary") — command body 가 실제 entrypoint boundary 인지 (단순 위임이 아니라)
+    - command 가 의도한 deviation (이중 gate 약화 권한) 명시 — Acceptable Deviations 섹션
+  - verify: auditor 보고서 + manual GAP report 모두 P0=0, P1 적용 또는 정당화
 
 **Verification**:
 - `/install-harness` 호출 시 routing 표 따라 design skill 진입 확인
@@ -245,27 +263,52 @@
 
 **Sub-tasks**:
 
-- [ ] **2a. execution-plan-schema.md 작성**
-  - 경로: `plugins/bobs-plugin/references/execution-plan-schema.md`
+- [ ] **2a. spec-schema.md 작성** (이름 변경 — execution-plan-schema → spec-schema, 이유: top-level discriminator 가 execution_plan 만 다루지 않음)
+  - 경로: `plugins/bobs-plugin/references/spec-schema.md`
   - 구조:
     - §1 Goal + scope
-    - §2 YAML schema 정의 (fenced block `yaml`):
+    - §2 Top-level discriminator (Finding 2 반영 — mode 는 spec 의 top-level 필드, per-item 이 아님):
       ```yaml
+      spec_version: v2
+      mode: dispatch | self_apply | plan_only | no-op | needs_input | blocked
+      ```
+      - design skill 별 현재 mode 와 mapping:
+        - `resource-design` → `mode: dispatch` (creator 호출 필요)
+        - `context-map-architecture` → `mode: self_apply` (현재 Output Contract 의 `applied` 와 동의어)
+        - `evaluation-loop-design` → `mode: self_apply` (현재 Output Contract 의 `applied` 와 동의어)
+        - 3 design skill 모두 → `mode: plan_only` 가능 (사용자 결정 보류)
+    - §3 Mode-specific payload:
+      ```yaml
+      # mode: dispatch — execution_plan 항목 (creator 호출)
       execution_plan:
-        - target: <creator-name | self-apply>
+        - target: <creator-name>     # skill-creator | agent-creator | hook-creator
           args:
             <key>: <value>
           rationale: <한 줄>
-          execution_mode: dispatch | self_apply | plan_only   # Task 3
+
+      # mode: self_apply — applied_changes 본문 (context-map / evaluation-loop 패턴)
+      applied_changes:
+        - file: <path>
+          action: created | edited | moved
+      follow_ups:
+        - description: <한 줄>
+          recommended_skill: <next design skill if any>
+
+      # mode: plan_only — proposed_plan 본문 (사용자 결정 pending)
+      proposed_plan:
+        - file: <path>
+          action: create | edit | move
+          rationale: <한 줄>
       ```
-    - §3 변형 케이스 — `mode: no-op` / `mode: needs_input` (category + items) / `mode: blocked` (reason + needs_input)
-    - §4 파싱 규칙 — YAML 파싱 표준 (PyYAML / `yq` 호환), `args` 키 누락 시 creator §0 가 부분 입력으로 시작
-    - §5 backward compatibility — v0.2 markdown-like 형식도 호환 파싱 (Task 1 의 command §3 Dispatch 가 둘 다 지원)
-    - §6 fixture 인용 path
+    - §4 변형 케이스 — `mode: no-op` (`reasoning` 본문) / `mode: needs_input` (`category` + `items`) / `mode: blocked` (`reason` + `needs_input`)
+    - §5 파싱 규칙 — YAML 파싱 표준 (PyYAML / `yq` 호환), spec 의 top-level `mode` 필드 먼저 읽고 해당 payload 만 파싱. design skill 산출 mode 와 spec_schema mode 간 mapping 표 (위 §2)
+    - §6 backward compatibility — v0.2 markdown-like 형식 + v0.2 `applied` mode 키워드 모두 graceful fallback
+    - §7 fixture 인용 path (sub 2b)
+  - verify: schema ≤ 250 lines
   - verify: schema ≤ 200 lines
 
 - [ ] **2b. fixture 디렉토리 + 정상 케이스 3종 작성**
-  - `mkdir -p plugins/bobs-plugin/references/execution-plan-schema/fixtures/`
+  - `mkdir -p plugins/bobs-plugin/references/spec-schema/fixtures/`
   - `spec-a-dispatch.md` (입력) — resource-design 의 3 creator dispatch
   - `spec-a-dispatch.expected.yaml` (기대 파싱 결과) — yaml 구조화
   - `spec-b-self-apply.md` — context-map-architecture self-apply (AGENTS.md 작성)
@@ -284,60 +327,85 @@
   - v1 호환 표기 (Task 2 sub 5a + command §3 Dispatch backward-compat)
   - verify: workflow doc §4 read
 
-- [ ] **2e. dry-run verification 절차**
-  - 각 fixture 입력 → YAML 파싱 → expected.yaml 비교 (shell or python script)
-  - 절차는 `references/execution-plan-schema.md` §6 Verification 섹션에 명시
-  - verify: 3 fixture 모두 expected 일치
+- [ ] **2e. parser/check script 작성** (Finding 3 반영 — fixture 가 regression test 가 되려면 canonical parser 필요)
+  - 경로: `plugins/bobs-plugin/references/spec-schema/check-fixtures.sh` (또는 `.py`)
+  - 책임: 각 fixture pair (`.md` 입력 + `.expected.yaml` 기대) 를 자동 비교
+  - 절차 (shell + `yq` 또는 python + `PyYAML`):
+    1. fixture `.md` 에서 YAML fenced block 추출
+    2. `yq -o json` 또는 PyYAML `yaml.safe_load` 로 파싱
+    3. expected `.yaml` 도 동일 파싱
+    4. 정규화 (key 순서 / 공백 무시) 후 deep equal 비교
+    5. mismatch 시 exit code 1 + diff 출력
+  - tool 의존성 명시 — `yq` (Homebrew: `brew install yq`) 또는 `python3 -m pip install pyyaml`. 둘 다 fallback 가능하게 작성 (yq 우선, 미설치 시 python fallback)
+  - 본 script 가 install-harness command (Task 1) 의 파싱 절차와 별도 — script 는 fixture 회귀 검증용 / command 는 Claude 가 직접 YAML 읽고 mode 분기 (외부 도구 의존 X)
+  - verify: 3 fixture pair 모두 `check-fixtures.sh` 통과 (exit 0)
 
 **Verification**:
-- `yq` 또는 PyYAML 으로 모든 fixture 파싱 성공
-- design skill 산출이 schema 따름 (Task 3 의 execution_mode 필드 포함)
-- v0.2 markdown-like 형식도 backward-compat 파싱 가능 (graceful fallback)
+- `check-fixtures.sh` 실행 → 3 fixture pair 모두 exit 0
+- design skill 산출이 schema 따름 (top-level mode + mode-specific payload, Task 3 검증)
+- v0.2 markdown-like 형식 입력에 대해 install-harness command 가 graceful fallback (별도 manual test — script 는 v2 YAML 만 검증)
 
 ---
 
-## 6. Task 3: `execution_mode` 필드 도입 (`dispatch | self_apply | plan_only`)
+## 6. Task 3: design skill Output Contract → top-level mode discriminator 정렬
 
-**Goal**: design skill 의 spec 산출 형식에 `execution_mode` 필드를 명시 — 현재 암묵적인 self-apply 패턴 (context-map-architecture / evaluation-loop-design) 을 명시 필드로 승격.
+**Goal** (Finding 2 반영 — execution_mode 는 per-item 이 아니라 **spec 의 top-level discriminator**): 3 design skill 의 Output Contract mode 필드를 Task 2 의 spec-schema.md top-level mode 와 정렬.
 
 **Current pain point** (외부 review 인용):
 - "Execution Plan을 모든 design skill의 표준처럼 말하면서, context-map-architecture와 evaluation-loop-design은 Applied Changes 자체 작성 패턴" — spec 의 §4 와 design skill 본문 사이 mismatch
+- 추가 (외부 review 2차 finding): execution_mode 가 per-item 이면 self_apply 가 처리 불가 — self_apply 는 whole-skill 동작이라 execution_plan 항목 자체가 없음. → top-level discriminator 가 맞음
 
-**3 mode 의 의미**:
-- `dispatch` — spec.Execution Plan 항목별 creator skill 호출. resource-design 패턴.
-- `self_apply` — design skill 본문이 직접 파일 write (creator 없이). context-map-architecture (AGENTS.md / docs tree write) / evaluation-loop-design (docs/agent/*.md write) 패턴.
-- `plan_only` — spec 만 산출, dispatch/apply 는 사용자 결정. design skill 이 "이 변경이 적합한지 사용자가 결정" 으로 미루는 경우.
+**현재 design skill 별 mode 와 spec-schema mode 의 mapping**:
+
+| design skill | 현재 Output Contract mode | spec-schema mode | 새 payload |
+|---|---|---|---|
+| `resource-design` | (mode 명시 없음, Execution Plan 만) | `dispatch` | `execution_plan` 항목 |
+| `context-map-architecture` (SKILL.md:104) | `applied \| plan-only \| no-op \| blocked` | `self_apply` (applied 와 동의어) / `plan_only` / `no-op` / `blocked` | `applied_changes` 본문 (self_apply) 또는 `proposed_plan` (plan_only) |
+| `evaluation-loop-design` (SKILL.md:124) | `applied \| plan-only \| no-op \| needs_input` | `self_apply` / `plan_only` / `no-op` / `needs_input` | 동일 |
 
 **Sub-tasks**:
 
-- [ ] **3a. execution-plan-schema.md 에 `execution_mode` 필드 정의** (Task 2 와 같이)
-  - field type: enum {`dispatch`, `self_apply`, `plan_only`}
-  - default: `dispatch` (생략 시)
-  - mode 별 install-harness command §4 Dispatch 의 분기 절차 명시
-  - verify: schema 본문 read
+- [ ] **3a. spec-schema.md 의 mode mapping 표 작성** (Task 2 의 §2 와 §5 에 포함 — 본 sub-task 는 mapping 표 verify only)
+  - verify: spec-schema.md §2 mode mapping 표 read — 3 design skill 모두 mode mapping 명시
 
-- [ ] **3b. resource-design SKILL.md 갱신**
-  - spec 산출 예시에 `execution_mode: dispatch` 명시 (default 라 생략 가능, but 명시 권장)
+- [ ] **3b. resource-design SKILL.md 갱신** (mode 명시 추가)
+  - 현재 Output Contract 에 mode 필드 없음 (Execution Plan 만) → top-level `mode: dispatch` (default) 또는 변형 (`mode: no-op` / `mode: needs_input` / `mode: blocked`) 추가
+  - 신규 mode 가 추가되는 거라 backward-compat 위해 default `mode: dispatch` 생략 시 dispatch 로 추정
   - verify: SKILL.md diff
 
-- [ ] **3c. context-map-architecture SKILL.md 갱신**
-  - spec 산출 본문에 `execution_mode: self_apply` 명시
-  - Output Contract 섹션 갱신 — Applied Changes 와 execution_mode 의 관계 명시
-  - verify: SKILL.md diff
+- [ ] **3c. context-map-architecture SKILL.md 갱신** (Output Contract mode 정렬)
+  - 현재 mode 값 `applied | plan-only | no-op | blocked` → spec-schema 와 정렬 (3 옵션):
+    - **옵션 A (권장)**: 현재 keyword 유지 + spec-schema §2 mapping 표에서 동의어 처리 (`applied` ↔ `self_apply`, `plan-only` ↔ `plan_only`). design skill 본문 변경 최소.
+    - 옵션 B: design skill mode 값을 `self_apply | plan_only | no-op | blocked` 로 renames. backward-compat 깨짐.
+    - 옵션 C: design skill 에 둘 다 출력 (mode + execution_mode). 중복.
+  - 옵션 A 적용 시: SKILL.md Output Contract 표 옆에 한 줄 "spec-schema 의 `self_apply` 와 동의어" 추가 + design-output-contract.md §1.2 의 mode mapping 표 인용
+  - verify: SKILL.md diff (옵션 A 면 ~5 lines 변경)
 
 - [ ] **3d. evaluation-loop-design SKILL.md 갱신**
-  - 동일 — `execution_mode: self_apply` 명시
+  - 동일 — 옵션 A 적용 (`applied` ↔ `self_apply`, `plan-only` ↔ `plan_only`)
+  - `needs_input` mode 는 spec-schema 도 동일 (rename 불요)
   - verify: SKILL.md diff
 
-- [ ] **3e. install-harness command §4 Dispatch 분기 절차 작성** (Task 1c 의 dispatch.md 와 같이)
-  - dispatch mode → creator 호출
-  - self_apply mode → design skill 산출 본문 적용 (사용자 승인 후)
-  - plan_only mode → 사용자 redirect (보고만)
+- [ ] **3e. install-harness command §4 Dispatch 분기 절차 작성** (Task 1 의 dispatch.md reference)
+  - 절차:
+    1. spec 의 top-level `mode` 필드 read
+    2. mode 별 분기:
+       - `dispatch` → `execution_plan` 항목별 creator 호출
+       - `self_apply` → `applied_changes` 본문 — 이미 design skill 이 파일 write 완료, command 는 *변경 사항 사용자 보고 + 승인 게이트 (CONSTITUTION §3.3)* 만 처리. 단 design skill 이 *gate 통과 후* write 했는지 검증 — 미통과 시 command 가 사후 승인 요청 (Risk 12.4 완화)
+       - `plan_only` → `proposed_plan` 본문 사용자에게 제시 + 사용자 결정 후 진행
+       - `no-op` / `needs_input` / `blocked` → 사용자 보고 + chain 종료
+    3. 각 mode 의 후처리 — runner cycle 진입 또는 chain 종료
   - verify: command body §4 절차 read
 
+- [ ] **3f. design-output-contract.md §1.2 갱신** (mode 표 추가)
+  - 현재 §1.2 표준 4 섹션 의 헤더 부분에 mode 필드 명시 추가
+  - mode mapping 표 (resource-design / context-map-architecture / evaluation-loop-design 각각 mode 값) 추가
+  - verify: design-output-contract.md diff
+
 **Verification**:
-- 3 design skill 산출 spec 의 `execution_mode` 필드 명시 확인
-- install-harness command §4 Dispatch 의 각 mode 분기 동작 확인 (manual test 3종)
+- 3 design skill 산출 spec 의 top-level `mode` 필드 명시 확인 (각 design skill 별 mapping 일치)
+- install-harness command §4 Dispatch 의 각 mode 분기 동작 확인 (manual test 5종 — dispatch / self_apply / plan_only / no-op / needs_input)
+- self_apply 의 사후 승인 gate (Risk 12.4) 검증
 
 ---
 
@@ -467,7 +535,7 @@
 
 v1 §1 "skill 호출 체인" 의도가 v2 command boundary 도입으로 architectural 변화. v2 spec 본문에 *왜 v1 intent 를 갱신하는지* 명시 필수 (외부 review R1 인용).
 
-**완화**: v2 spec §0 Context 에 외부 review R1 인용 + CONSTITUTION §3.13 근거.
+**완화**: v2 spec §0 Context 에 외부 review R1 인용 + CONSTITUTION §2.1 ("Prompt Is Not A Harness Boundary") 근거.
 
 ### 12.2 install-harness command body 비대
 
@@ -475,11 +543,14 @@ orchestration 전체 wrap 이라 command body 가 길어질 위험 (≥ 600 line
 
 **완화**: routing.md / dispatch.md / cycle.md 3 reference 로 분리 + command body 는 상위 흐름 + reference link 만.
 
-### 12.3 YAML schema 파싱 의존성
+### 12.3 YAML schema 파싱 — runtime 처리 vs regression test 분리
 
-v0.3 의 spec 파싱이 YAML 표준 의존 — `yq` 또는 PyYAML 미설치 환경에서 install-harness command 가 직접 파싱 어려움.
+v0.3 의 spec 파싱은 2 contexts 로 분리:
 
-**완화**: install-harness command body 가 YAML 파싱 절차를 *Claude 가 직접* 처리 (외부 도구 의존 X). YAML 은 Claude 가 native 처리 가능.
+- **runtime (install-harness command)**: Claude 가 spec.md 의 YAML fenced block 을 *native* 로 읽고 mode 분기. 외부 도구 의존 X. command body 가 "yq 호출" 같은 절차 강제하지 않음.
+- **regression test (Task 2 sub 2e check-fixtures.sh)**: fixture pair 회귀 검증용 — `yq` 또는 PyYAML 사용. tool 의존 (Homebrew yq 또는 pip pyyaml — 둘 다 fallback). CI 또는 manual sweep 에서 실행.
+
+**완화**: 두 contexts 분리 명시. runtime 은 Claude 가 처리 (배포 환경 의존 X), regression test 는 dev/CI 환경에서만 (script 가 둘 다 시도하고 graceful fallback).
 
 ### 12.4 self_apply mode 의 effect gate 누락
 
