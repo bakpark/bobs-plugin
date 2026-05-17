@@ -35,12 +35,14 @@ asset_name: <kebab-case name>          # 파일명 결정. report = <resource_ty
 delegation_mode: delegate | inline     # Phase 3 vs Phase 4 (비용 트레이드오프)
 reentry_count: 0                       # path-based self-application 카운터. 호출자는 0 으로 시작
                                        # 본 skill 이 자기 자신 분석 시 1 증가, > 2 시 NEEDS_REVIEW
-round_count: 0                         # round 카운터. REVISE_ASSET 재호출 시 호출자가 +1.
-                                       # round 2+ 는 report_path 끝에 .round${n}.md suffix.
+round_count: 1                         # round 카운터 (1-based). 첫 호출 = 1. REVISE_ASSET
+                                       # 재호출 시 호출자가 +1 해 다음 round 로 진행.
+                                       # round_count >= 2 시 report_path 끝에 .round${round_count}.md
+                                       # suffix (round 1 = base .GAP.md, round 2 = .round2.md, ...).
                                        # > 5 시 Phase 8 가 NEEDS_REVIEW 반환.
 ```
 
-**사용자 직접 호출 시 args 부재** — Phase 0 직전에 사용자에게 묻는다. 우선 캡처: `resource_type` / `draft_path` / `asset_name`. 기본값: `delegation_mode = delegate` / `reentry_count = 0` / `round_count = 0`. 사용자 직접 호출 모드에서는 round_count 가 보통 0 으로 고정 (사용자가 자산 수정 후 재호출 시에만 +1 권고 — 본 skill 은 자가 카운트 안 함).
+**사용자 직접 호출 시 args 부재** — Phase 0 직전에 사용자에게 묻는다. 우선 캡처: `resource_type` / `draft_path` / `asset_name`. 기본값: `delegation_mode = delegate` / `reentry_count = 0` / `round_count = 1`. 사용자 직접 호출 모드에서는 round_count 가 보통 1 로 고정 (사용자가 자산 수정 후 재호출 시에만 +1 권고 — 본 skill 은 자가 카운트 안 함).
 
 **workspace_path 는 args 아님** — 본 skill 이 자체 결정 (Phase 2 참조). 호출자는 통합 workspace 위치를 알 필요 없음.
 
@@ -71,13 +73,22 @@ Read ${CLAUDE_PLUGIN_ROOT}/references/GAP-ANALYSIS-PROMPT.md
 ### Phase 2: Workspace 준비 (자체 결정)
 
 ```bash
-WORKSPACE="${CLAUDE_PLUGIN_ROOT}/skills/creator-gap-eval-workspace"
-# env 미설정 fallback: ../../creator-gap-eval-workspace  (본 SKILL.md 디렉토리 기준)
+# env 우선 — plugin 정상 설치 시
+if [ -n "$CLAUDE_PLUGIN_ROOT" ]; then
+  WORKSPACE="$CLAUDE_PLUGIN_ROOT/skills/creator-gap-eval-workspace"
+else
+  # env 미설정 fallback: 본 SKILL.md 파일의 dirname 기준 *sibling* 디렉토리.
+  # creator-gap-eval/ 의 부모 (plugin 의 skills/) 아래 형제 위치.
+  SKILL_DIR="$(dirname <abs path to THIS SKILL.md>)"   # = .../skills/creator-gap-eval
+  WORKSPACE="$SKILL_DIR/../creator-gap-eval-workspace"  # = .../skills/creator-gap-eval-workspace
+fi
 mkdir -p "$WORKSPACE/gaps"
 REPORT_PATH="$WORKSPACE/gaps/${resource_type}-${asset_name}.GAP.md"
 ```
 
-**round 2+ 시 suffix**: `args.round_count` (호출자 echo 값) 가 2 이상이면 `REPORT_PATH` 끝에 `.round${round_count}.md` 붙임 (기존 패턴 `skill-agent-creator.GAP.round2.md` 따름). 호출자가 round 증가 시 같은 `asset_name` 으로 재호출.
+**round 2+ 시 suffix**: `args.round_count` (1-based) 가 2 이상이면 `REPORT_PATH` 끝에 `.round${round_count}.md` 붙임 (기존 패턴 `skill-agent-creator.GAP.round2.md` 따름). round 1 = base `.GAP.md`. 호출자가 REVISE_ASSET 받고 round +1 해 재호출 시 자동으로 새 round 파일.
+
+**round 1 덮어쓰기 위험**: 호출자가 실수로 같은 자산을 `round_count: 1` 로 *두 번* 호출 시 이전 round 1 GAP report 손실. REVISE_ASSET 분기에서는 *반드시* `round_count + 1` 전달 — 3 creator stub §4 가 이를 명시.
 
 통합 workspace 채택 — 호출자에게 위탁하지 않음. 모든 GAP report 가 동일 디렉토리, 파일명 prefix (`skill-` / `agent-` / `hook-`) 가 자산 분리.
 

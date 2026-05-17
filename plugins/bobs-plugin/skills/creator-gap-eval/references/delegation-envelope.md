@@ -29,9 +29,11 @@ prompt:
   리포트 저장 경로:
     <REPORT_PATH>
 
-  [이하 GAP-ANALYSIS-PROMPT.md 의 §"판정 원칙" / §"원칙 강도" / §"Finding 유형" /
-   §"Severity" / §"<DELEGATION_CHECK_AXIS> 점검 축" / §"Evidence 작성 규칙" /
-   §"리포트 구조" / §"최종 결정" / §"완료 보고" 섹션 verbatim 으로 복사]
+  <<COPY_GAP_PROMPT_BODY_HERE>>
+  (위 sentinel 을 GAP-ANALYSIS-PROMPT.md 의 §"판정 원칙" / §"원칙 강도" / §"Finding 유형" /
+   §"Severity" / §"<DELEGATION_CHECK_AXIS> 점검 축" / §"Evidence 작성 규칙" / §"리포트 구조" /
+   §"최종 결정" / §"완료 보고" 섹션 본문으로 *완전 치환*. dispatch 직전 Verify Step 0 가
+   sentinel 잔류 여부 검사.)
   ---
 ```
 
@@ -95,12 +97,34 @@ dispatch 직전에 `${CLAUDE_PLUGIN_ROOT}/references/GAP-ANALYSIS-PROMPT.md` 를
 
 ## 6. Verify Step (dispatch 직전 self-check)
 
-envelope 작성 후 dispatch 직전에 다음 5 가지 확인:
+**중요**: envelope template 자체가 heading 이름 (`판정 원칙` 등 9개) 과 axis 이름 (`Skill 점검 축` 등) 을 *placeholder 영역* 에 포함하므로, 단순 keyword grep 만으로는 *본문 누락* 을 검출할 수 없다. 본 절차는 *본문 unique phrase* 와 *sentinel 제거* 두 가지를 함께 사용한다.
+
+dispatch 직전에 다음 6 가지 확인:
 
 ```bash
-# 1. 9 heading 키워드 모두 envelope prompt 에 있는지 (복사 누락 검출)
-for kw in "판정 원칙" "원칙 강도" "Finding 유형" "Severity" "점검 축" "Evidence 작성 규칙" "리포트 구조" "최종 결정" "완료 보고"; do
-  echo "$envelope_prompt" | grep -q "$kw" || echo "MISSING: $kw"
+# 0. SENTINEL 사전 삽입 — envelope template 의 "[이하 GAP-ANALYSIS-PROMPT.md ... 복사]"
+# 줄을 단일 sentinel string 으로 치환 후 본문 복사 시 sentinel 을 제거. dispatch 직전
+# sentinel 잔류 = 본문 미복사 신호.
+SENTINEL="<<COPY_GAP_PROMPT_BODY_HERE>>"
+echo "$envelope_prompt" | grep -qF "$SENTINEL" && echo "BODY NOT COPIED (sentinel left)"
+
+# 1. 9 heading 본문 unique phrase 검출 — heading 이름이 아닌 본문 안의 fingerprint phrase.
+#    각 heading 의 본문 첫 1-2 sentence 에 나오는 unique phrase 사용 (GAP-ANALYSIS-PROMPT.md 와 동기).
+#    fingerprint 가 1 개도 발견 안 되면 본문 미복사.
+declare -A fingerprints=(
+  ["판정 원칙"]="여섯 가지 판정"          # §판정 원칙 본문의 fingerprint (실제 phrase 로 갱신)
+  ["원칙 강도"]="MUST"                     # §원칙 강도 본문 fingerprint
+  ["Finding 유형"]="ASSET_GAP"             # §Finding 유형
+  ["Severity"]="P0"                        # §Severity 본문
+  ["${expected_axis_section}"]="${expected_axis_fingerprint}"  # axis-specific
+  ["Evidence 작성 규칙"]="evidence"        # §Evidence
+  ["리포트 구조"]="Metadata"               # §리포트 구조 본문
+  ["최종 결정"]="REVISE_ASSET"             # §최종 결정 enum
+  ["완료 보고"]="path"                     # §완료 보고
+)
+for heading in "${!fingerprints[@]}"; do
+  echo "$envelope_prompt" | grep -qF "${fingerprints[$heading]}" \
+    || echo "MISSING BODY: $heading (fingerprint '${fingerprints[$heading]}' not found)"
 done
 
 # 2. 분기 슬롯 모두 채워졌는지 (placeholder 잔류 검출)
@@ -115,20 +139,33 @@ done
 echo "$envelope_prompt" | grep -q "creator-gap-eval-workspace/gaps/" \
   || echo "WRONG WORKSPACE PATH"
 
-# 5. delegation_check_axis 와 envelope 5번 heading 본문 일치 (자원-타입 mismatch 차단)
+# 5. delegation_check_axis 와 envelope 본문 일치 (axis-specific fingerprint 검증).
+#    heading 이름 (예: "Skill 점검 축") 만으로는 차단 불가 — template 의 heading 인용 줄이
+#    매칭하기 때문. axis 본문에만 등장하는 fingerprint 가 envelope 에 있는지 확인.
 case "$delegation_check_axis" in
-  Skill) expected_axis="Skill 점검 축" ;;
-  Agent) expected_axis="Agent 점검 축" ;;
-  Hook)  expected_axis="Hook 점검 축" ;;
+  Skill) expected_axis_section="Skill 점검 축"
+         expected_axis_fingerprint="invocation_controls" ;;     # SKILL-GUIDE 고유 키
+  Agent) expected_axis_section="Agent 점검 축"
+         expected_axis_fingerprint="Persona" ;;                 # AGENT-GUIDE 고유 키 (실제 phrase 로 갱신)
+  Hook)  expected_axis_section="Hook 점검 축"
+         expected_axis_fingerprint="matcher" ;;                 # HOOK-GUIDE 고유 키
 esac
-count=$(echo "$envelope_prompt" | grep -c "$expected_axis")
-[ "$count" -eq 1 ] || echo "AXIS MISMATCH: expected '$expected_axis' (count=$count)"
-# 다른 axis 본문이 envelope 에 leaked 됐는지 확인
-for other in Skill Agent Hook; do
-  [ "$other" = "$delegation_check_axis" ] && continue
-  echo "$envelope_prompt" | grep -q "$other 점검 축" && echo "FOREIGN AXIS LEAKED: $other"
+echo "$envelope_prompt" | grep -qF "$expected_axis_fingerprint" \
+  || echo "AXIS BODY MISSING: expected '$expected_axis_section' (fingerprint '$expected_axis_fingerprint' not in envelope)"
+
+# 다른 axis 본문이 envelope 에 leaked 됐는지 확인 (fingerprint 기반)
+for other_axis in Skill Agent Hook; do
+  [ "$other_axis" = "$delegation_check_axis" ] && continue
+  case "$other_axis" in
+    Skill) other_fp="invocation_controls" ;;
+    Agent) other_fp="Persona" ;;
+    Hook)  other_fp="matcher" ;;
+  esac
+  echo "$envelope_prompt" | grep -qF "$other_fp" && echo "FOREIGN AXIS LEAKED: $other_axis (fingerprint '$other_fp')"
 done
 ```
+
+**fingerprint 유지 관리**: GAP-ANALYSIS-PROMPT.md 의 각 heading 본문이 갱신되면 위 `fingerprints` 표의 fingerprint phrase 도 *함께* 갱신. fingerprint 는 *해당 heading 본문에만 등장* 하고 *envelope template 자체에 없는* phrase 여야 검증 가치가 있음. 갱신 시 본문에서 unique phrase 1 개 추출 후 envelope template 에 우연 등장하지 않는지 cross-check.
 
 ## 7. Common Failures
 

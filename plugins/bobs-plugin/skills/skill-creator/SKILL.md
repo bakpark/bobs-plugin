@@ -145,7 +145,7 @@ draft_path:
 asset_name: <name>               # §1 에서 결정된 kebab-case. report = skill-<name>.GAP.md
 delegation_mode: delegate        # 기본 위임 (비용 절감 필요 시 inline)
 reentry_count: 0                 # 본 creator 가 호출하는 경로는 항상 0 (creator-gap-eval 자기 자신 분석 아님)
-round_count: 0                   # REVISE_ASSET 재호출 시 +1 (5 초과 시 NEEDS_REVIEW)
+round_count: 1                   # 1-based. 첫 호출 = 1. REVISE_ASSET 재호출 시 +1 (round 2 = 2 → .round2.md suffix). > 5 시 NEEDS_REVIEW
 ```
 
 호출 (Claude Code 환경): `Skill` tool 로 `creator-gap-eval` 활성화. 반환 yaml 의 `final_decision` 으로 분기 — 상세는 §4 참조. `report_path` 는 통합 workspace 의 절대 경로 반환.
@@ -156,7 +156,7 @@ round_count: 0                   # REVISE_ASSET 재호출 시 +1 (5 초과 시 N
 
 - `PASS` / `PASS_WITH_NOTES` → §5 (Output to caller) 로 진행
 - `REVISE_GUIDE` → 사용자 보고 후 §5 (자산은 일단 통과)
-- `REVISE_ASSET` → P0/P1/P2 적용 (§2 시점 B gate 거침) 후 `creator-gap-eval` 재호출 (`round_count + 1`)
+- `REVISE_ASSET` → P0/P1/P2 적용 (§2 시점 B gate 거침) 후 `creator-gap-eval` 재호출. 재호출 시 args 의 `round_count` 와 `reentry_count` 모두 *반환된 값* 으로 echo + `round_count` 만 +1 (예: 반환 `round_count: 1, reentry_count: 0` 받았으면 다음 호출 `round_count: 2, reentry_count: 0`). **round_count +1 누락 시 이전 GAP report 덮어쓰기 위험**
 - `SPLIT_ASSET` → §0 으로 복귀, 책임 분리 재설계
 - `DEPRECATE_ASSET` → 사용자 confirm 후 폐기 권고
 - `NEEDS_REVIEW` → 사용자 입력 받기 (creator-gap-eval 의 reentry_count 한도 또는 round_count 한도 초과 포함)
