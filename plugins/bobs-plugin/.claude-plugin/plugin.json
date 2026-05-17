@@ -1,7 +1,7 @@
 {
   "name": "bobs-plugin",
   "description": "Bob's bundle for Claude harness work: agent-skill-auditor + resource-design + context-map-architecture + evaluation-loop-design + evaluation-loop-runner + skill-creator + agent-creator + hook-creator + creator-gap-eval (3 creator §3-§4 통합 GAP 적용 절차, 직접 호출도 가능) (with the agent-skill-best-practices GUIDE).",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "author": {
     "name": "bakpark",
     "email": "bakparkbj@gmail.com"

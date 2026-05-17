@@ -352,11 +352,26 @@ Outline:
 - ✅ cross-link / consistency 점검 — Task 5 통과 (ghost-free / spec_version v1 6곳 통일 / Routing 표 §2 ↔ §3.1/3.2/3.3 design ↔ §5.1 creator + §5.2 runner ↔ §6 chain 일관)
 - ✅ 4 신규 skill (3 design + 1 runner) + 3 creator description ↔ routing 표 일치 확인. workflow doc placeholder 0건 (TBD per Step N 모두 제거)
 
-### Step 7. Creator skill 정리
+### Step 7. Creator skill 정리 ✅
 
-- `agent-creator` 상태 정리 — *이미 사용자 측에서 완료* 확인됨
-- `hook-creator` 완성
-- 모두 spec 인터페이스 (Execution Plan 의 `target` / `args` 형식) 호환 확인. 호환 안 되면 args 파싱 헬퍼 보강
+- ✅ `agent-creator` 상태 정리 — 이미 사용자 측에서 완료 확인됨
+- ✅ `hook-creator` 완성 (별도)
+- ✅ 모두 spec 인터페이스 (`Execution Plan` 의 `target` / `args` 형식) 호환 확인 — Step 7 plan 실행으로 3 creator §0 가 args 입력 contract 받도록 정렬:
+  - `skill-creator`: `name` / `scope` (commit dd50a62)
+  - `agent-creator`: `name` / `scope` / `subagent_type` (선택, commit dd7bd99)
+  - `hook-creator`: `name` / `event` / `matcher` / `scope` (commit 8cce09e)
+  - backward-compatible — args 없는 사용자 직접 호출 동작 보존, intent 본질 질문 (#1-#5) args 우회 불가
+- ✅ version bump 0.1.3 → 0.2.0 (minor, breaking — Step 1-7 누적):
+  - Step 1: harness-engineering.md → harness-principles.md + §5-7 삭제
+  - Step 2: 3 skill 삭제 (`agents-md-author` / `context-map-builder` / `claude-md-improver`) + `context-map-architecture` 신규
+  - Step 3: `harness-resource-design` 삭제 + `agent-skill-designer` agent 삭제 + `resource-design` 신규
+  - Step 4: `evaluation-loop-design` 신규
+  - Step 4b: `creator-gap-eval` 신규 + 3 creator §3-§4 stub 교체
+  - Step 5: `evaluation-loop-runner` 신규
+  - Step 6: workflow doc 4 TBD 본문화
+  - Step 7: 3 creator §0 args 호환 정렬 (본 Step)
+
+**상태**: Implemented (모든 Step ✅) — Step 1-7 + 4b 완료. 후속 follow-up: GAP-005 GUIDE_GAP (SKILL-GUIDE §7/§8 write-procedure 권장 골격) / GAP-007 GUIDE_GAP (SKILL-GUIDE §2 mutation skill tools 권장 강화) / Step 5 P3 잔류 (description 압축 / near-miss / verified-on).
 
 ## 8. Asset Disposition
 
