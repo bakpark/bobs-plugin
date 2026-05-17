@@ -18,8 +18,13 @@ bobs-plugin/                              ← marketplace repo root
 │       │   ├── skill-creator/                (vendored — Apache-2.0)
 │       │   ├── claude-automation-recommender/(vendored — Apache-2.0)
 │       │   └── context-map-architecture/    (in-house)
-│       ├── references/
-│       │   └── agent-skill-best-practices-GUIDE.md
+│       ├── references/                    ← constitution + guides + analyzed OSS snapshots
+│       │   ├── CONSTITUTION.md
+│       │   ├── SKILL-GUIDE.md / AGENT-GUIDE.md / COMMAND-GUIDE.md / HOOK-GUIDE.md / RUNTIME-GUIDE.md
+│       │   ├── GAP-FORMAT.md / GAP-ANALYSIS-PROMPT.md
+│       │   ├── harness-principles.md / harness-installation-workflow.md
+│       │   ├── skills/  agents/  hooks/    ← OSS read-only snapshots
+│       │   └── v1/  v2/                    ← cycle archives + GAP reports
 │       └── third_party_licenses/
 │           ├── skill-creator-LICENSE
 │           ├── claude-code-setup-LICENSE
@@ -45,7 +50,50 @@ bobs-plugin/                              ← marketplace repo root
 | `claude-automation-recommender` | vendored from `claude-plugins-official/claude-code-setup` (Apache-2.0) | Recommend hooks / subagents / skills / plugins / MCP servers for a codebase. |
 | `context-map-architecture` | in-house | Design + write the docs tree (AGENTS.md / CLAUDE.md / docs/agent/context-map.md / etc.). Absorbs the former `agents-md-author`, `context-map-builder`, and vendored `claude-md-improver` (see THIRD_PARTY_NOTICES.md for Apache-2.0 attribution). |
 
-The GUIDE itself ships at `plugins/bobs-plugin/references/agent-skill-best-practices-GUIDE.md` so the auditor is self-contained — no `~/.claude/research/` dependency.
+The plugin's constitution + five resource guides ship under `plugins/bobs-plugin/references/` so the auditor and designer are self-contained — no `~/.claude/research/` dependency.
+
+## References — analyzed open-source plugins
+
+`plugins/bobs-plugin/references/` is more than a guide bundle. To draft the CONSTITUTION and the five resource-type guides (SKILL / AGENT / COMMAND / HOOK / RUNTIME), we read and snapshotted production skills, subagents, and hooks from public Claude Code plugins. The snapshots are **read-only copies** kept under `references/skills/`, `references/agents/`, `references/hooks/` so the analysis is reproducible after upstream updates.
+
+Every analyzed asset lives in one of the marketplaces installed at `~/.claude/plugins/marketplaces/`. The mapping below shows which OSS plugin contributed to which guide.
+
+### Skills (`references/skills/`)
+
+| Snapshot | Marketplace → Plugin | How it informed our guides |
+| :--- | :--- | :--- |
+| `brainstorming` | `claude-plugins-official / superpowers` | Process-skill activation pattern → SKILL-GUIDE §"automatic activation", CONSTITUTION trigger taxonomy |
+| `writing-plans` | `claude-plugins-official / superpowers` | Plan structure + checkpoint contract → COMMAND-GUIDE workflow gate |
+| `writing-skills` | `claude-plugins-official / superpowers` | Skill authoring discipline → SKILL-GUIDE structure, `skill-creator` red-green-refactor |
+| `using-git-worktrees` | `claude-plugins-official / superpowers` | Isolation + cleanup pattern → pressure scenarios in `agent-creator` |
+| `skill-creator` | `claude-plugins-official / skill-creator` | Directly vendored + analyzed → seeded our in-house `skill-creator` and trigger-eval |
+| `claude-automation-recommender` | `claude-plugins-official / claude-code-setup` | Recommender output contract → vendored as-is into this plugin |
+| `claude-md-improver` | `claude-plugins-official / claude-md-management` | Docs-tree audit pattern → absorbed by in-house `context-map-architecture` |
+| `frontend-design` | `claude-plugins-official / frontend-design` | Domain-specific skill example → SKILL-GUIDE "domain capability" antipattern checks |
+
+### Agents (`references/agents/`)
+
+| Snapshot | Marketplace → Plugin | How it informed our guides |
+| :--- | :--- | :--- |
+| `builtin/` | Claude Code built-in (`claude-code-guide`, `general-purpose`, `Explore`, `Plan`) | Baseline tool-scope + role separation → AGENT-GUIDE "when not to spawn a subagent" |
+| `code-simplifier.md` | `claude-plugins-official / code-simplifier` | Single-purpose specialist pattern → AGENT-GUIDE role boundary rules |
+| `pr-review-toolkit/{code-reviewer,code-simplifier,comment-analyzer}` | `claude-plugins-official / pr-review-toolkit` | Multi-agent toolkit composition → AGENT-GUIDE "overlap & near-miss" axis |
+
+### Hooks (`references/hooks/`)
+
+| Snapshot | Marketplace → Plugin | Event | How it informed our guides |
+| :--- | :--- | :--- | :--- |
+| `superpowers/` | `claude-plugins-official / superpowers` | `SessionStart` (`startup\|clear\|compact`) | Context-injection-on-session pattern → HOOK-GUIDE "always-on injection" |
+| `ralph-loop/` | `claude-plugins-official / ralph-loop` | `Stop` | Loop completion handling → HOOK-GUIDE termination semantics |
+| `security-guidance/` | `claude-plugins-official / security-guidance` | `PreToolUse` | Guardrail-on-shell pattern → HOOK-GUIDE blocking-hook example, RUNTIME-GUIDE permission boundary |
+
+### External reference (no local snapshot)
+
+| Source | Use |
+| :--- | :--- |
+| <https://github.com/shanraisshan/claude-code-best-practice> | Cross-checked Claude Code best-practice phrasings while drafting CONSTITUTION and the five guides. |
+
+Snapshot refresh procedure, version-pin inventory (`v2/v2-update.md`), and GAP reports are documented in `plugins/bobs-plugin/references/README.md`.
 
 ## Install
 
