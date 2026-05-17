@@ -136,7 +136,7 @@ follow_ups:                                            # 선택
 
 main session 의 자동 chain 책임 (runner 외부 — `references/runtime-protocol.md` 참조):
 - 라운드 카운트 유지 (runner 는 stateless — `round` 필드를 매 호출마다 main session 이 전달)
-- 종료 조건 4종 enforce (no-op / 사용자 명시 종료 / 같은 design skill 2회 연속 / 누적 5회 초과)
+- 종료 조건 4종 enforce (no-op / 사용자 명시 종료 / 같은 target+fingerprint 2회 연속 / 누적 5회 초과) — fingerprint 정의는 `references/runtime-protocol.md` §2.1
 - Next Action 의 design skill 호출 + `input` 전달
 - 종료 후 사이클 결과 사용자 보고
 
@@ -148,7 +148,7 @@ main session 의 자동 chain 책임 (runner 외부 — `references/runtime-prot
 | Routing Decision 표 본문 재생산 | runner 본문 또는 references 가 `docs/agent/evaluation-loop.md` Routing Decision 표 6 행 (`| 신호 | 환원 위치 | rationale |`) 본문 복사 | 표 *행 매핑* 만, 본문 재생산 금지 (drift-avoidance). 매 호출마다 명세 read |
 | stateful runner | runner 가 이전 호출 상태 (라운드 카운트 / 사이클 이력) 자체 유지 시도 | runner 는 stateless. `round` 필드는 main session 이 매 호출마다 전달. 종료 조건 enforce 도 main session 책임 |
 | 5종 표면 일부만 | Phase 2 가 PASS / FAIL 만 분류, no-op / blocked / needs_input 누락 | 5종 표면 모두 (`golden-set-write.md` 의 case 5종 표면 정의 따름) |
-| 종료 조건 위반 | 같은 design skill 2회 연속 호출 또는 5회 초과 chain 계속 | main session 의 cycle 카운터가 enforce — runner 외부 책임. runner 는 매 호출 stateless |
+| 종료 조건 위반 | 같은 target+fingerprint 2회 연속 또는 5회 초과 chain 계속 | main session 의 cycle 카운터가 enforce — runner 외부 책임. runner 는 매 호출 stateless. fingerprint 정의는 `references/runtime-protocol.md` §2.1 |
 | Phase 1 entry write 누락 | gap 분석만 수행, entry write 안 함 | Phase 1 강제 — entry 가 Phase 2 의 입력 source + 재현 가능성의 base |
 | 비밀 entry 기록 | API 토큰 / 자격 증명이 entry 에 평문 기록 | placeholder / redacted 표기 강제 (`task-log-template-write.md` §보존 정책 4종 중 *비밀 금지*) |
 | 의존 자원 부재 silent fail | `docs/agent/*.md` 부재 시 silent skip + dummy 결과 반환 | `mode: blocked` + needs_input 보고 — silent 진행 금지 |
