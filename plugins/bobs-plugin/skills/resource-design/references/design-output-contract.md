@@ -63,8 +63,10 @@
 target creator skill + args + rationale (Phase 2 dispatch 용 — main session 이 §4 파싱 규칙으로 처리).
 
 1. `target: skill-creator | args: name=<x>, scope=<plugin|user|project> | rationale: <한 줄>`
-2. `target: agent-creator | args: name=<x>, model=<sonnet|opus> | rationale: <한 줄>`
-3. `target: hook-creator | args: event=<PreToolUse|...>, matcher=<x> | rationale: <한 줄>`
+2. `target: agent-creator | args: name=<x>, scope=<plugin|user|project>, subagent_type=<x?> | rationale: <한 줄>`
+3. `target: hook-creator | args: name=<x>, event=<PreToolUse|...>, matcher=<x>, scope=<plugin|user|project> | rationale: <한 줄>`
+
+workflow doc §5.1 args 표 + 3 creator §0 args 입력 contract 와 일치 (Step 7 정렬). `subagent_type` 은 선택 (main session 호출용 식별자, 누락 시 creator §0 가 결정). agent-creator 의 `model` 은 §0 intent 본질 질문 답안 (creator 가 결정) 이라 args 우회 불가 — 본 표 에서 제외.
 ```
 
 ### 1.3 변형 케이스 (workflow doc §4 형식)

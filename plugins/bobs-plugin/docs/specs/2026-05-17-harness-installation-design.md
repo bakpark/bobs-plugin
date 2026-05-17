@@ -294,13 +294,13 @@ Outline:
 
 ## 7. Migration Plan (전략 C — 점진)
 
-### Step 1. Document split
+### Step 1. Document split ✅
 
-1a. `git mv harness-engineering.md harness-principles.md`
-1b. §5-7 본문 삭제 (rename 후 동일 commit)
-1c. `harness-installation-workflow.md` skeleton 작성 — §1, §2, §4 만 채움. §3 / §5-6 / §7-8 은 *placeholder + "TBD per Step N"*.
+1a. ✅ `git mv harness-engineering.md harness-principles.md`
+1b. ✅ §5-7 본문 삭제 (rename 후 동일 commit)
+1c. ✅ `harness-installation-workflow.md` skeleton 작성
 
-### Step 2. `context-map-architecture` skill 작성
+### Step 2. `context-map-architecture` skill 작성 ✅
 
 2a. 신규 skill draft — `agents-md-author` / `context-map-builder` / `claude-md-improver` 핵심 절차 흡수, references 디렉토리로 핵심 본문 이동.
 2b. GAP 분석 → PASS / PASS_WITH_NOTES.
@@ -312,20 +312,20 @@ Outline:
     - `plugin.json` 에서 deprecated skill 제거
     - `THIRD_PARTY_NOTICES.md` 갱신 (claude-md-improver 흡수 attribution)
 
-### Step 3. `resource-design` skill 작성
+### Step 3. `resource-design` skill 작성 ✅
 
-3a. `harness-resource-design` 본문 + `agent-skill-designer` 책임 흡수 → 신규 `resource-design`.
-3b. GAP 분석 → PASS.
-3c. workflow doc §3.1 채움.
-3d. 기존 자산 삭제: `harness-resource-design` 디렉토리, `agent-skill-designer.md` agent 파일. plugin 등록 / agents 목록에서 제거.
+3a. ✅ `harness-resource-design` 본문 + `agent-skill-designer` 책임 흡수 → 신규 `resource-design`.
+3b. ✅ GAP 분석 → PASS.
+3c. ✅ workflow doc §3.1 채움.
+3d. ✅ 기존 자산 삭제: `harness-resource-design` 디렉토리, `agent-skill-designer.md` agent 파일.
 
-### Step 4. `evaluation-loop-design` skill 작성
+### Step 4. `evaluation-loop-design` skill 작성 ✅
 
-4a. 신규 — `agent-skill-auditor` 를 reference 로.
-4b. GAP 분석 → PASS.
-4c. workflow doc §3.3 채움.
+4a. ✅ 신규 — `agent-skill-auditor` 를 reference 로.
+4b. ✅ GAP 분석 → PASS_WITH_NOTES.
+4c. ✅ workflow doc §3.3 채움.
 
-### Step 4b. `creator-gap-eval` 추출 (Step 5 prerequisite)
+### Step 4b. `creator-gap-eval` 추출 (Step 5 prerequisite) ✅
 
 3 creator 의 §3-§4 (실측 ~375 lines, ~70% 본질 중복) 를 단일 skill 로 추출:
 
