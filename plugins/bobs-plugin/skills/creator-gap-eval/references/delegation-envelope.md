@@ -85,13 +85,14 @@ dispatch 직전에 `${CLAUDE_PLUGIN_ROOT}/references/GAP-ANALYSIS-PROMPT.md` 를
 
 ## 5. 복사 *제외* 섹션
 
-본 envelope 의 prompt 본문이 *이미 직접 지시* 하므로 중복 회피 — 5 섹션 제외:
+본 envelope 의 prompt 본문이 *이미 직접 지시* 하므로 중복 회피 — 6 섹션 제외:
 
-1. §목표 — envelope 가 "GAP 분석을 수행한다" 로 직접 지시.
-2. §반드시 먼저 읽을 문서 — envelope 의 `반드시 먼저 읽을 문서` 섹션이 직접 명시 (CONSTITUTION + matrix `guide_name` + GAP-FORMAT).
-3. §분석 대상 — envelope 의 `<TARGET_SECTION>` 이 직접 명시.
-4. §수정 가능 범위 — envelope 의 "단, 분석 대상은 외부 경로" 로 read-only 명시.
-5. §작업 방식 — envelope 의 "이전 컨텍스트를 전혀 모른다고 가정" 으로 명시.
+1. §작업 원칙 — envelope 가 resolved cwd, 외부 target, report path 를 직접 주입하고 판정/증거/완료 보고 섹션을 별도 복사.
+2. §목표 — envelope 가 "GAP 분석을 수행한다" 로 직접 지시.
+3. §반드시 먼저 읽을 문서 — envelope 의 `반드시 먼저 읽을 문서` 섹션이 직접 명시 (CONSTITUTION + matrix `guide_name` + GAP-FORMAT).
+4. §분석 대상 — envelope 의 `<TARGET_SECTION>` 이 직접 명시.
+5. §수정 가능 범위 — envelope 의 "단, 분석 대상은 외부 경로" 로 read-only 명시.
+6. §작업 방식 — envelope 의 "이전 컨텍스트를 전혀 모른다고 가정" 으로 명시.
 
 본 skill 은 *단일 자산* 분석 — GAP-ANALYSIS-PROMPT 의 multi-asset 가정 (§분석 대상 / §수정 가능 범위 등) 은 적용하지 않는다.
 

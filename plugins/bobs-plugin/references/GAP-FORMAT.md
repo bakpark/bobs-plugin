@@ -28,7 +28,7 @@ CONSTITUTION.md
 GAP 리포트의 목적은 자산에 점수를 매기는 것이 아니다.
 
 목적:
-- 실제 스킬, 에이전트, 훅이 v2 원칙과 얼마나 맞는지 확인한다.
+- 실제 스킬, 에이전트, 커맨드, 훅, 런타임 설정이 v2 원칙과 얼마나 맞는지 확인한다.
 - 차이가 있을 때 자산 문제인지, 가이드 보완점인지, 의도적 예외인지 분리한다.
 - 형식 차이가 아니라 라우팅, scope, capability, output, safety 에 미치는 영향을 기록한다.
 - 다음 iteration 에서 어떤 문서나 자산을 수정할지 결정할 근거를 남긴다.
@@ -227,10 +227,18 @@ Guide target: HOOK-GUIDE.md Version-Sensitive Details
 asset_type: skill | agent | command | hook | runtime
 source_path:
 compared_against:
+assumptions:
+scope:
+exclusions:
+verification:
 final_decision:
 ```
 
 `compared_against` 는 실제 적용한 문서만 적는다.
+`assumptions` 는 cwd, 기준 문서 위치, runtime/version 확인 여부처럼 판단에 영향을 줄 수 있는 전제를 적는다. 없으면 `None` 으로 둔다.
+`scope` 는 실제 분석한 대상과 범위를 적는다.
+`exclusions` 는 의도적으로 분석하지 않은 대상과 이유를 적는다.
+`verification` 은 final decision 전에 확인한 self-check, 파일 존재 확인, heading 확인, 실행 검증 또는 검증하지 못한 이유를 적는다.
 
 예:
 
@@ -507,6 +515,8 @@ Evidence 는 짧게 쓴다. 긴 원문 복사는 피한다.
 ## 15. Suggested Changes
 
 수정 제안은 대상별로 나눈다.
+각 제안은 관련 finding ID, acceptable deviation, 또는 follow-up question 과 연결한다. 연결할 근거가 없으면 제안하지 않는다.
+제안은 확인된 영향을 해결하는 가장 작은 변경 단위로 쓴다. 장래 확장성, 문체 통일, 인접 문서 정리는 현재 finding 해결에 필요할 때만 포함한다.
 
 ```markdown
 ### Asset Changes
@@ -523,6 +533,12 @@ Evidence 는 짧게 쓴다. 긴 원문 복사는 피한다.
 ```
 
 `Constitution Review` 는 드물게만 사용한다. 하네스 자산 전반에 적용되는 공통 원칙 수준일 때만 적는다.
+
+Follow-up Questions 작성 규칙:
+- 질문은 final decision 에 영향을 줄 수 있는 ambiguity 만 남긴다.
+- 분석을 계속할 수 있는 불확실성은 `assumptions`, `unknown`, `AMBIGUITY` 로 표시하고 질문을 좁게 쓴다.
+- blocking ambiguity 가 있으면 final decision 은 `NEEDS_REVIEW` 로 둔다.
+- 있으면 좋은 개선이나 범위 밖 정리는 질문이 아니라 별도 follow-up 후보로 둔다.
 
 ---
 
@@ -561,6 +577,8 @@ Evidence 는 짧게 쓴다. 긴 원문 복사는 피한다.
 6. 좋은 예외를 finding 으로 과잉 승격하지 않았는가?
 7. recommendation 이 asset 수정인지 guide 수정인지 명확한가?
 8. Constitution Review 를 너무 쉽게 제안하지 않았는가?
+9. assumptions, scope, exclusions, verification 을 기록했는가?
+10. Suggested Changes 는 finding 또는 질문에 연결된 최소 변경인가?
 ```
 
 ---

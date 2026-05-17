@@ -100,7 +100,7 @@ REPORT_PATH="$WORKSPACE/gaps/${resource_type}-${asset_name}.GAP.md"
 2. envelope template 의 `<RESOLVED_REFS_DIR>` placeholder 를 절대 경로로 치환 (main session 책임 — env 우선, fallback `../../references/`).
 3. matrix lookup 으로 `delegation_check_axis` / `delegation_target_wording` / `target_paths` / `snapshot_section` / `checks_section` 채움.
 4. GAP-ANALYSIS-PROMPT 의 9 heading 본문 (heading 다음 줄 ~ 다음 heading 직전) 을 *순서·원문 그대로* 복사 → envelope 의 placeholder 자리. 복사 순서: §판정 원칙 → §원칙 강도 → §Finding 유형 → §Severity → §`<delegation_check_axis>` 점검 축 → §Evidence 작성 규칙 → §리포트 구조 → §최종 결정 → §완료 보고.
-5. 복사 제외 (envelope 가 직접 지시 — 중복 회피): §목표 / §반드시 먼저 읽을 문서 / §분석 대상 / §수정 가능 범위 / §작업 방식.
+5. 복사 제외 (envelope 가 직접 지시 — 중복 회피): §작업 원칙 / §목표 / §반드시 먼저 읽을 문서 / §분석 대상 / §수정 가능 범위 / §작업 방식.
 6. 현재 환경의 subagent dispatch 도구로 호출. Claude Code: `Agent` 도구 + `subagent_type: "general-purpose"`.
 
 위임 이유: main context 절약 + GAP-FORMAT "이전 컨텍스트를 전혀 모른다고 가정" 원칙 충족 (평가자 독립성).

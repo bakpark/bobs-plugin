@@ -3,8 +3,33 @@
 아래 프롬프트를 다른 LLM agent 에게 그대로 전달한다.
 
 ````markdown
-현재 작업 디렉토리는 `/Users/macpro/.claude/research/agent-skill-best-practices` 이다.
-너는 이 대화의 이전 컨텍스트를 전혀 모른다고 가정하고, 현재 cwd 안의 파일만 기준으로 GAP 분석을 수행한다.
+작업 root 는 호출자가 지정한 현재 작업 디렉토리다.
+너는 이 대화의 이전 컨텍스트를 전혀 모른다고 가정하고, 먼저 cwd 와 기준 문서 위치를 확인한 뒤 작업 root 안의 파일만 기준으로 GAP 분석을 수행한다.
+기준 문서가 root 에 없고 `references/` 아래에만 있으면 그 위치를 명시하고 계속한다. 기준 문서 위치를 확정할 수 없으면 분석을 중단하고 필요한 경로를 `Follow-up Questions` 에 남긴다.
+
+## 작업 원칙
+
+분석 전에 다음 전제를 명시한다.
+
+- 현재 cwd 와 기준 문서 위치
+- 분석할 자산 유형과 제외할 유형
+- 불명확한 해석 또는 선택지가 있는 항목
+
+불확실한 항목은 임의로 단정하지 않는다. 분석을 계속할 수 있으면 `AMBIGUITY` 또는 `Follow-up Questions` 로 남기고, 최종 결정에 영향을 주는 blocking ambiguity 이면 `NEEDS_REVIEW` 로 둔다.
+
+수정은 최소 범위로 한다.
+
+- 요청된 GAP 분석 범위와 직접 관련된 `v2/gaps/*.GAP.md` 만 생성 또는 갱신한다.
+- 기존 리포트의 수동 작성 내용, 근거, 결정 이력을 함부로 삭제하지 않는다.
+- 형식 정리, 문체 통일, 인접 리포트 개선은 현재 finding 을 이해하거나 갱신하는 데 필요할 때만 한다.
+- `Suggested Changes` 는 실제 영향이 확인된 finding 을 해결하는 가장 작은 변경으로 작성한다. 장래 확장성이나 있으면 좋은 개선만으로 새 작업을 만들지 않는다.
+
+완료 전에 검증한다.
+
+- 분석 대상 목록과 제외 사유가 완료 보고에 남아 있는가?
+- 각 리포트가 `GAP-FORMAT.md` 의 필수 섹션과 Final Decision 을 갖는가?
+- P0/P1, `GUIDE_GAP`, `Constitution Review` 후보가 영향 근거와 함께 분리되어 있는가?
+- 수정한 모든 줄이 이번 분석 범위와 직접 연결되는가?
 
 ## 목표
 
@@ -140,17 +165,18 @@ v1/**
 
 ## 작업 방식
 
-1. 분석 대상 파일 목록을 확정한다.
-2. 각 자산의 frontmatter 또는 설정 정보를 읽는다.
-3. 자산 유형별로 적용할 기준 문서를 정한다.
+1. cwd, 기준 문서 위치, 분석 범위의 전제를 기록한다.
+2. 분석 대상 파일 목록을 확정한다.
+3. 각 자산의 frontmatter 또는 설정 정보를 읽는다.
+4. 자산 유형별로 적용할 기준 문서를 정한다.
    - skill: `CONSTITUTION.md`, `SKILL-GUIDE.md`, `GAP-FORMAT.md`
    - agent: `CONSTITUTION.md`, `AGENT-GUIDE.md`, `GAP-FORMAT.md`
    - command: `CONSTITUTION.md`, `COMMAND-GUIDE.md`, `GAP-FORMAT.md`
    - hook: `CONSTITUTION.md`, `HOOK-GUIDE.md`, `GAP-FORMAT.md`
    - runtime/settings: `CONSTITUTION.md`, `RUNTIME-GUIDE.md`, `GAP-FORMAT.md`
-4. `GAP-FORMAT.md` 의 리포트 구조를 따라 작성한다.
-5. 형식 차이가 아니라 실제 영향을 중심으로 finding 을 만든다.
-6. 최종 완료 보고를 작성한다.
+5. `GAP-FORMAT.md` 의 리포트 구조를 따라 작성한다.
+6. 형식 차이가 아니라 실제 영향을 중심으로 finding 을 만든다.
+7. 완료 전 검증 항목을 확인하고 최종 완료 보고를 작성한다.
 
 ## 판정 원칙
 
