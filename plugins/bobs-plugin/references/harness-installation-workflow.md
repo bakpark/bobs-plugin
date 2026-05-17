@@ -253,7 +253,7 @@ needs_input:
 
 TBD per Step 5 (`evaluation-loop-runner`) + Step 7 (creator skills 호환 확인).
 
-- 5.1 `skill-creator` / `agent-creator` / `hook-creator` (이미 GAP-driven, spec 입력 받음)
+- 5.1 `skill-creator` / `agent-creator` / `hook-creator` (GAP-driven, spec 입력 받음). 각 creator 의 §3-§4 는 `creator-gap-eval` skill 호출 (Step 4b 추출) — `resource_type` args (skill / agent / hook) 로 분기, Final Decision (PASS / PASS_WITH_NOTES / REVISE_ASSET / REVISE_GUIDE / SPLIT_ASSET / DEPRECATE_ASSET / NEEDS_REVIEW) 반환받아 §5 진행 또는 재호출. workspace 는 plugin-unified `${CLAUDE_PLUGIN_ROOT}/skills/creator-gap-eval-workspace/gaps/` 에 누적
 - 5.2 `evaluation-loop-runner` (runtime — task log + gap 라우팅)
 
 ## 6. Cycle — Runtime → 재진입

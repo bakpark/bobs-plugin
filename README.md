@@ -1,6 +1,6 @@
 # bobs-plugin marketplace
 
-A single-plugin Claude Code marketplace shipping `bobs-plugin`. The plugin bundles one harness agent and in-house design + authoring skills (`resource-design`, `context-map-architecture`, `evaluation-loop-design`, `skill-creator`, `agent-creator`, `hook-creator`) so the whole harness-design / authoring workflow is available from one install.
+A single-plugin Claude Code marketplace shipping `bobs-plugin`. The plugin bundles one harness agent and in-house design + authoring skills (`resource-design`, `context-map-architecture`, `evaluation-loop-design`, `skill-creator`, `agent-creator`, `hook-creator`, `creator-gap-eval`) so the whole harness-design / authoring workflow is available from one install.
 
 ## Layout
 
@@ -16,6 +16,8 @@ bobs-plugin/                              ← marketplace repo root
 │       │   ├── resource-design/              (in-house)
 │       │   ├── context-map-architecture/    (in-house)
 │       │   ├── evaluation-loop-design/      (in-house)
+│       │   ├── creator-gap-eval/            (in-house — 3 creator §3-§4 통합 GAP 적용)
+│       │   ├── creator-gap-eval-workspace/  (in-house — plugin-unified GAP report workspace)
 │       │   └── skill-creator/                (vendored — Apache-2.0)
 │       ├── references/                    ← constitution + guides + analyzed OSS snapshots
 │       │   ├── CONSTITUTION.md
@@ -45,7 +47,8 @@ bobs-plugin/                              ← marketplace repo root
 | `resource-design` | in-house | Decide which resource type (command / skill / agent / hook / runtime settings / plugin) a work pattern needs + responsibility split + Execution Plan for creator-skill dispatch. Absorbs the former `harness-resource-design` skill and `agent-skill-designer` subagent. |
 | `context-map-architecture` | in-house | Design + write the docs tree (AGENTS.md / CLAUDE.md / docs/agent/context-map.md / etc.). Absorbs the former `agents-md-author`, `context-map-builder`, and vendored `claude-md-improver` (see THIRD_PARTY_NOTICES.md for Apache-2.0 attribution). |
 | `evaluation-loop-design` | in-house | Design + write the evaluation infrastructure (`docs/agent/roles.md` body / `evaluation-loop.md` / `golden-set.md` / `task-log-template.md`). Self-writing skill — direct file write, no creator dispatch. |
-| `skill-creator` | vendored from `claude-plugins-official/skill-creator` (Apache-2.0) | Create / iterate / eval / benchmark skills. |
+| `creator-gap-eval` | in-house | 3 creator (skill / agent / hook) 의 §3 GAP 분석 + §4 Self-feedback refine 절차를 통합한 단일 메타 skill. `resource_type` args 로 자원-타입 분기 (GAP-FORMAT §11.X / §12.X / SPLIT_ASSET 신호). creator chain 자동 호출 + 사용자 직접 호출 모두 지원 (`user-invocable: true`). Plugin-unified workspace `creator-gap-eval-workspace/gaps/`. |
+| `skill-creator` | vendored from `claude-plugins-official/skill-creator` (Apache-2.0) | Create / iterate / eval / benchmark skills. §3-§4 는 `creator-gap-eval` 호출 stub. |
 
 The plugin's constitution + five resource guides ship under `plugins/bobs-plugin/references/` so the auditor and designer are self-contained — no `~/.claude/research/` dependency.
 
@@ -108,12 +111,12 @@ claude --plugin-dir /Users/macpro/dev/bobs-plugin/plugins/bobs-plugin
 
 After install:
 
-- Skills resolve as `/bobs-plugin:resource-design`, `/bobs-plugin:context-map-architecture`, `/bobs-plugin:evaluation-loop-design`, `/bobs-plugin:skill-creator`.
+- Skills resolve as `/bobs-plugin:resource-design`, `/bobs-plugin:context-map-architecture`, `/bobs-plugin:evaluation-loop-design`, `/bobs-plugin:creator-gap-eval`, `/bobs-plugin:skill-creator`, `/bobs-plugin:agent-creator`, `/bobs-plugin:hook-creator`.
 - Agent `agent-skill-auditor` appears in `/agents`.
 
 ## Licensing
 
-- Root `LICENSE` (MIT) covers original work: manifests, README, the GUIDE snapshot, the `resource-design` / `context-map-architecture` / `evaluation-loop-design` / `skill-creator` / `agent-creator` / `hook-creator` skills, and the `agent-skill-auditor` agent.
+- Root `LICENSE` (MIT) covers original work: manifests, README, the GUIDE snapshot, the `resource-design` / `context-map-architecture` / `evaluation-loop-design` / `creator-gap-eval` / `skill-creator` / `agent-creator` / `hook-creator` skills, and the `agent-skill-auditor` agent.
 - Vendored skills remain under their upstream Apache-2.0 license — see [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md) and the preserved `LICENSE` copies under `plugins/bobs-plugin/third_party_licenses/`.
 
 ## Migration notes

@@ -325,6 +325,18 @@ Outline:
 4b. GAP 분석 → PASS.
 4c. workflow doc §3.3 채움.
 
+### Step 4b. `creator-gap-eval` 추출 (Step 5 prerequisite)
+
+3 creator 의 §3-§4 (실측 ~375 lines, ~70% 본질 중복) 를 단일 skill 로 추출:
+
+4b-1. 신규 skill `creator-gap-eval` (skill, plugin scope, `user-invocable: true`) — `resource_type` args 분기 + 사용자 직접 호출 허용. workspace 자체 결정 (plugin-unified `${CLAUDE_PLUGIN_ROOT}/skills/creator-gap-eval-workspace/gaps/`).
+4b-2. 3 creator §3-§4 본문 ~375 lines → ~70 lines stub (Skill tool 호출 + 6 args 전달 + Final Decision 7-enum 분기) 로 교체. §3/§4 헤더는 보존.
+4b-3. 3 creator self-eval — 새 chain 작동 검증. PASS / PASS_WITH_NOTES / REVISE_GUIDE 만 통과 gate.
+4b-4. workflow doc §5.1 + spec §8 Asset Disposition 갱신 + meta 파일 (plugin.json / marketplace.json / README) + agent-skill-auditor description.
+4b-5. 기존 분산 workspace (`agent-creator-workspace/gaps/`, `hook-creator-workspace/gaps/`) → 통합 workspace 로 `git mv` 마이그레이션 (history 보존).
+
+본 Step 이 *Step 5 의 prerequisite* — Step 5 의 `evaluation-loop-runner` 가 creator chain 패턴 (creator-gap-eval 별도 skill) 을 인지한 채 자동 chain 설계해야 함. 본 Step 후 Step 7 (Creator skill spec 호환 확인) 의 *호환 대상* 도 정확해짐.
+
 ### Step 5. `evaluation-loop-runner` skill 작성
 
 5a. 신규 — runtime 동작 중심. task log 캡처 + gap 분석 + 라우팅.
@@ -354,9 +366,10 @@ Outline:
 | `harness-resource-design` | **재편 → `resource-design`** | Step 3 |
 | `agent-skill-designer` subagent | **삭제** (책임 흡수, dead asset 회피) | Step 3d |
 | `agent-skill-auditor` subagent | 유지 — `evaluation-loop-design` 의 reference | Step 4 |
-| `skill-creator` | 유지 — spec 인터페이스 호환 확인 | Step 7 |
-| `agent-creator` | 유지 — (이미 정리됨) | Step 7 |
-| `hook-creator` | 유지 — 완성 | Step 7 |
+| `skill-creator` | 유지 — §3-§4 stub 으로 축약 (creator-gap-eval 호출). spec 인터페이스 호환 확인 | Step 4b / Step 7 |
+| `agent-creator` | 유지 — §3-§4 stub 축약 (creator-gap-eval 호출) | Step 4b / Step 7 |
+| `hook-creator` | 유지 — §3-§4 stub 축약 (creator-gap-eval 호출). 본문 완성은 Step 7 | Step 4b / Step 7 |
+| `creator-gap-eval` (신규) | 유지 — 3 creator chain 의 §3 호출 대상 + 사용자 직접 호출 (`user-invocable: true`). 통합 workspace `creator-gap-eval-workspace/gaps/` | Step 4b |
 
 ## 9. Risks
 
