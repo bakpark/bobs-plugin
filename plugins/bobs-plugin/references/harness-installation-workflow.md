@@ -6,7 +6,7 @@
 
 ## 1. Overview
 
-하네스 이식 — 빈 또는 기존 프로젝트에 하네스 (docs / agents / skills / hooks + 검증 인프라) 를 도입하는 워크플로우.
+하네스 이식 — 빈 또는 기존 프로젝트에 하네스 (docs / commands / agents / skills / hooks / runtime settings + 검증 인프라) 를 도입하는 워크플로우.
 
 두 phase 구조:
 
@@ -33,7 +33,7 @@
 
 | 신호 | 첫 design skill |
 |---|---|
-| "스킬·에이전트·훅 만들어줘", 자원 타입 결정 | `resource-design` |
+| "커맨드·스킬·에이전트·훅·런타임 설정 만들어줘", 자원 타입 결정 | `resource-design` |
 | "AGENTS.md 만들어줘", "문서 정리", "context-map" | `context-map-architecture` |
 | "검증 인프라", "task log", "golden-set" | `evaluation-loop-design` |
 | 빈 프로젝트, "처음부터 하네스" | `context-map-architecture` (먼저 인덱스/계약) |
@@ -54,14 +54,14 @@
 
 - 사용자가 `AGENTS.md` / `CLAUDE.md` / `docs/agent/context-map.md` / `docs/` 트리 작성·정리·갱신 요청
 - 빈 프로젝트에서 "처음부터 하네스" 요청 (Routing 표 §2 마지막 행)
-- 자원 (skill / agent / hook) 추가·삭제 후 인덱싱 갱신 필요
+- 자원 (command / skill / agent / hook / runtime setting) 추가·삭제 후 인덱싱 갱신 필요
 
 **Inspect 도메인**:
 
 - 현재 docs 트리 (`docs/`, `docs/agent/`, `docs/decisions/`, `docs/domain/`, `docs/integrations/`, `docs/workflows/`, `docs/security.md`)
 - 인덱싱 누락 (`docs/README.md`, `docs/agent/context-map.md`)
 - 책임 누수 (CLAUDE.md 가 AGENTS.md 책임 침범, README 가 작업 계약 흡수, 등)
-- 자원 inventory — `references/context-map-write.md` §Inventory 절차 (skill / agent / hook / doc / role)
+- 자원 inventory — `references/context-map-write.md` §Inventory 절차 (command / skill / agent / hook / runtime setting / doc / role)
 
 **Spec format** (workflow doc §4 의 공통 인터페이스 적용):
 
@@ -84,7 +84,7 @@
 **Effect gate** (이중):
 
 - 1단계 (design): Document Plan 사용자 검토 + 승인 (CONSTITUTION §3.3)
-- 2단계 (apply): 각 파일 write 직전 경로·종류·요약 1회 확인 — `references/agents-md-write.md` Phase 3, `context-map-write.md` Phase 3, `claude-md-write.md` Phase 4-5 (Targeted Updates → Apply), `docs-tree-write.md` Phase 2 (skeleton write) 의 각 절차
+- 2단계 (apply): 각 파일 write 직전 경로·종류·요약 1회 확인 — `references/agents-md-write.md` Phase 3, `context-map-write.md` Phase 3, `claude-md-write.md` Phase 4-5 (Targeted Updates → Apply), `docs-tree-write.md` Phase 3 (Effect gate, Phase 2 templates 를 묶어 승인) 의 각 절차
 
 **Handoff**:
 

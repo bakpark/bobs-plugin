@@ -1,7 +1,7 @@
 ---
 name: context-map-architecture
 description: |-
-  Use when designing or refreshing the project's docs tree — `AGENTS.md` / `CLAUDE.md` / `docs/agent/context-map.md` / `docs/agent/roles.md` skeleton / `docs/architecture.md` skeleton / `docs/decisions/` / `docs/domain/` skeleton / `docs/integrations/` / `docs/workflows/` / `docs/security.md`. Triggers on "AGENTS.md 만들어줘", "CLAUDE.md audit", "context map 갱신", "docs 정리", "harness 문서 인덱싱", "docs/architecture skeleton 필요", "빈 프로젝트 하네스 docs 셋업". Do NOT use for deciding resource type (skill/agent/hook) — `harness-resource-design` / `agent-skill-designer`. Do NOT use for writing individual skill/agent/hook files — `skill-creator` / `agent-creator` / `hook-creator`. Do NOT use for evaluation infrastructure (task log, golden-set) — `evaluation-loop-design`. Do NOT write the *prose body* of `docs/architecture.md` / `docs/domain/` — this skill produces *skeletons* (section headers + placeholders) only; humans fill bodies.
+  Use when designing or refreshing the project's docs tree — `AGENTS.md` / `CLAUDE.md` / `docs/README.md` (index) / `docs/agent/context-map.md` / `docs/architecture.md` skeleton / `docs/decisions/` / `docs/domain/` skeleton / `docs/integrations/` / `docs/workflows/` / `docs/security.md`. Triggers on "AGENTS.md 만들어줘", "CLAUDE.md audit", "context map 갱신", "docs 정리", "harness 문서 인덱싱", "docs/architecture skeleton 필요", "빈 프로젝트 하네스 docs 셋업". Do NOT use for deciding resource type (skill/agent/hook) — `harness-resource-design` / `agent-skill-designer`. Do NOT use for writing individual skill/agent/hook files — `skill-creator` / `agent-creator` / `hook-creator`. Do NOT use for evaluation infrastructure (task log, golden-set) — `evaluation-loop-design`. Do NOT write the *prose body* of `docs/architecture.md` / `docs/domain/` — this skill produces *skeletons* (section headers + placeholders) only; humans fill bodies. `docs/agent/roles.md` body is also outside scope — only inventory-inspected and seeded as follow-up.
 user-invocable: true
 ---
 
@@ -54,7 +54,7 @@ user-invocable: true
 - `references/agents-md-write.md` — AGENTS.md (도구 공통 코딩 에이전트 계약)
 - `references/context-map-write.md` — `docs/agent/context-map.md` (라우팅 표)
 - `references/claude-md-write.md` — `CLAUDE.md` (Claude 한정 짧은 운용 지침, Apache-2.0 attribution)
-- `references/docs-tree-write.md` — `docs/architecture.md` / `docs/decisions/` / `docs/domain/` / `docs/integrations/` / `docs/workflows/` / `docs/security.md` skeleton
+- `references/docs-tree-write.md` — `docs/README.md` (index) + `docs/architecture.md` / `docs/decisions/` / `docs/domain/` / `docs/integrations/` / `docs/workflows/` / `docs/security.md` skeleton
 
 ### Phase 2: Document Plan
 
@@ -96,7 +96,7 @@ write 순서 (의존성 기반):
 
 1. `AGENTS.md` (있어야 다른 docs 가 인용할 *작업 계약* 이 생긴다 — `agents-md-write.md` Phase 3)
 2. `CLAUDE.md` (AGENTS.md 와 책임 분리 확정 후 — `claude-md-write.md` Phase 4-5)
-3. `docs/architecture.md` / `docs/decisions/` / `docs/domain/` / `docs/integrations/` / `docs/workflows/` / `docs/security.md` skeleton (`docs-tree-write.md` Phase 2)
+3. `docs/README.md` (index) / `docs/architecture.md` / `docs/decisions/` / `docs/domain/` / `docs/integrations/` / `docs/workflows/` / `docs/security.md` skeleton (`docs-tree-write.md` Phase 3 effect gate → Phase 2 templates)
 4. `docs/agent/context-map.md` (위 모든 자원 + docs 인벤토리 확정 후 — `context-map-write.md` Phase 3)
 
 각 write 후 즉시 verify (해당 reference 의 verify 절차) — 길이 / 인용 자원 일치 / 책임 누수 재점검.
@@ -150,7 +150,7 @@ follow_ups:
 - `references/agents-md-write.md` — AGENTS.md 작성 절차 (Phase 1-3 + 8-section 골격 + 책임 누수 점검)
 - `references/context-map-write.md` — `docs/agent/context-map.md` 작성 절차 (Phase 1-3 + inventory 절차 + 표 골격)
 - `references/claude-md-write.md` — CLAUDE.md 작성 절차 (Phase 1-5 압축, Apache-2.0 attribution)
-- `references/docs-tree-write.md` — `docs/architecture.md` / `docs/decisions/` / `docs/domain/` / `docs/integrations/` / `docs/workflows/` / `docs/security.md` skeleton 작성 절차
+- `references/docs-tree-write.md` — `docs/README.md` (index) + `docs/architecture.md` / `docs/decisions/` / `docs/domain/` / `docs/integrations/` / `docs/workflows/` / `docs/security.md` skeleton 작성 절차
 
 Normative source: `${CLAUDE_PLUGIN_ROOT}/references/harness-principles.md` §4.1 (Docs 책임 분리), §4.5 (Context Map), §4.7 (자산 선택 기준), §4.9 (1차 적용 원칙). Workflow 정의: `${CLAUDE_PLUGIN_ROOT}/references/harness-installation-workflow.md` §3.2.
 

@@ -1,6 +1,6 @@
 # bobs-plugin marketplace
 
-A single-plugin Claude Code marketplace shipping `bobs-plugin`. The plugin bundles two harness agents, one design-reference skill, and three vendored upstream skills so the whole harness-design / authoring workflow is available from one install.
+A single-plugin Claude Code marketplace shipping `bobs-plugin`. The plugin bundles two harness agents, in-house design + authoring skills (`harness-resource-design`, `context-map-architecture`, `skill-creator`, `agent-creator`, `hook-creator`), and one vendored upstream skill (`claude-automation-recommender`, Apache-2.0) so the whole harness-design / authoring workflow is available from one install.
 
 ## Layout
 

@@ -4,8 +4,9 @@
 
 ## 책임 경계
 
-`harness-principles` §4.1 (Docs) + §4.2 (Agents — `docs/agent/roles.md`) 가 정의한 docs 트리의 6 카테고리 *skeleton* 만 다룬다:
+`harness-principles` §4.1 (Docs) + spec §4.2 (context-map-architecture 책임) 가 정의한 docs 트리의 7 카테고리 *skeleton* 을 다룬다:
 
+- `docs/README.md` (인덱스)
 - `docs/architecture.md`
 - `docs/decisions/` (ADR 디렉토리)
 - `docs/domain/`
@@ -15,11 +16,10 @@
 
 **Skeleton 정의**: *섹션 헤더 + 각 섹션 1-2 줄 placeholder + 무엇을 채워야 하는지 안내 코멘트*. 본문 prose 자체는 작성하지 않음 — 본문은 사람 / 후속 작업.
 
-`docs/README.md` 인덱스, `docs/agent/context-map.md`, `docs/agent/roles.md` 스켈레톤은 다른 reference 가 다룸:
+`docs/agent/` 하위 두 파일은 다른 reference 가 다룸:
 
 - `docs/agent/context-map.md` → `context-map-write.md`
-- `docs/agent/roles.md` skeleton → context-map-architecture SKILL.md Phase 1 의 role inventory 보고 후 작성 follow-up (본 reference 범위 밖)
-- `docs/README.md` 인덱스 → `agents-md-write.md` Phase 1 inspect 결과로 생성 (또는 follow-up)
+- `docs/agent/roles.md` skeleton → context-map-architecture SKILL.md Phase 1 의 role inventory 보고 후 작성 follow-up (본 reference 범위 밖, spec §4.2 미포함)
 
 ## Phase 1 Inspect
 
@@ -30,10 +30,11 @@ ls <repo>/docs/ 2>/dev/null
 find <repo>/docs -maxdepth 2 -type f -name "*.md" 2>/dev/null
 ```
 
-수집 항목 (6 카테고리 × 존재 여부):
+수집 항목 (7 카테고리 × 존재 여부):
 
 | 카테고리 | 경로 | 존재? | skeleton 필요? |
 |---|---|---|---|
+| Index | `docs/README.md` | y/n | (없으면 y — 본 reference 의 첫 항목으로 갱신) |
 | Architecture | `docs/architecture.md` | y/n | (없으면 y) |
 | Decisions | `docs/decisions/` 또는 `docs/adr/` | y/n | (없으면 y, 첫 ADR `0001-record-architecture-decisions.md` 도 함께) |
 | Domain | `docs/domain/` | y/n | (없으면 y — 디렉토리 + `docs/domain/README.md`) |
@@ -46,6 +47,41 @@ find <repo>/docs -maxdepth 2 -type f -name "*.md" 2>/dev/null
 ## Phase 2 Skeleton write
 
 각 카테고리별 skeleton template. 작성 시 `<...>` placeholder 와 `<!-- TODO: ... -->` 안내 코멘트는 그대로 유지 — 사용자가 채우는 위치 표시.
+
+### docs/README.md
+
+`docs/` 디렉토리 인덱스 — 다른 docs 가 *어디 있고 언제 읽는지* 안내. 본 인덱스가 있어야 다른 reference (특히 `agents-md-write.md` 의 *Document reference order* 섹션) 가 인용할 진입점이 생긴다.
+
+```markdown
+# docs/
+
+본 디렉토리는 *코드만으로 알 수 없는* 프로젝트 지식을 저장한다 — 아키텍처, 결정 근거, 도메인, 외부 연계, 운영 절차, 보안.
+
+## 목차
+
+| 파일 / 디렉토리 | 역할 |
+|---|---|
+| `agent/context-map.md` | 작업 유형 → 역할 / 문서 / skill / hook 라우팅 표 |
+| `agent/roles.md` | 역할 정의 (planner / implementer / reviewer / 등) |
+| `architecture.md` | 시스템 아키텍처 (모듈 / 데이터흐름 / 의존) |
+| `decisions/` | ADR (Architecture Decision Records) |
+| `domain/` | 도메인 지식 (용어 정의, 비즈니스 룰) |
+| `integrations/` | 외부 시스템 연계 (API, webhook, queue) |
+| `workflows/` | 운영 절차 (리뷰, 릴리즈, 온콜) |
+| `security.md` | 위협 모델 / 권한 경계 / 사고 대응 |
+
+## 언제 무엇을 읽나
+
+- 작업 시작 시: `agent/context-map.md` 로 라우팅 확인
+- 구현 / 리팩터: `architecture.md`, 관련 `decisions/`, 도메인 판단이면 `domain/`
+- PR / 리뷰: `workflows/review-process.md`, `security.md`
+- 외부 연계 작업: `integrations/`, `security.md`
+- 보안·자격증명: `security.md` 먼저
+
+자세한 작업 계약 (build / test / forbidden actions) 은 루트 `AGENTS.md` 참조.
+
+<!-- TODO: 새 docs 파일 / 카테고리 추가 시 위 표·목록 갱신. -->
+```
 
 ### docs/architecture.md
 
@@ -275,6 +311,7 @@ caller 에게 반환:
 
 ```
 files_created:
+  - docs/README.md (index, <N> lines)
   - docs/architecture.md (skeleton, <N> lines)
   - docs/decisions/README.md (<N> lines)
   - docs/decisions/0001-record-architecture-decisions.md (<N> lines)
@@ -289,10 +326,11 @@ follow_ups:
   - docs/domain/<area>.md: 첫 도메인 항목 추가
   - docs/integrations/<system>.md: 첫 통합 파일 추가
   - docs/workflows/<process>.md: 첫 절차 파일 추가
+  - docs/agent/roles.md: 역할 정의 (본 reference 범위 밖 — context-map-architecture follow-up)
 mode: applied | plan-only | no-op | blocked
 ```
 
-**No-op case**: 6 카테고리가 모두 존재 + 본문 prose 가 비어있지 않음 → `mode: no-op`.
+**No-op case**: 7 카테고리가 모두 존재 + 본문 prose 가 비어있지 않음 → `mode: no-op`.
 
 **Blocked case**: 사용자가 effect gate 에서 거부 / 대규모 기존 docs 와 충돌 → `mode: blocked` + 사유.
 
