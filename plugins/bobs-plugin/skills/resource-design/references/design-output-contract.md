@@ -22,12 +22,12 @@ spec_version: v2
 generated_by: resource-design
 date: <iso8601>
 trigger: <user request>
-mode: dispatch | no-op | needs_input | blocked
+mode: created | no-op | needs_input | blocked
 ```
 
 `spec_version` 은 workflow doc §4 의 파싱 규칙과 동기화. v0.3 부터 *YAML fenced block* 우선 (v1 markdown-like 형식은 `${CLAUDE_PLUGIN_ROOT}/references/spec-schema.md` §6 backward compatibility 로 graceful fallback). `mode` 는 top-level discriminator — install-harness command 가 mode 별 payload 분기 (spec-schema §2 참조).
 
-resource-design 산출 mode 는 4 종 — `dispatch` (default, §1.2 표준 payload) / `no-op` / `needs_input` / `blocked`. `self_apply` 와 `plan_only` 는 resource-design 산출 mode 아님 (context-map-architecture / evaluation-loop-design 책임 — spec-schema §2.2 mapping 표).
+resource-design 산출 mode 는 4 종 — `created` (default, §1.2 표준 payload) / `no-op` / `needs_input` / `blocked`. `applied` 와 `plan-only` 는 resource-design 산출 mode 아님 (context-map-architecture / evaluation-loop-design 책임 — spec-schema §2.2 mapping 표). outcome-first 키워드 (CONSTITUTION §3.7.1) — design skill 의 *결과* 를 표현.
 
 ### 1.2 표준 4 섹션
 
