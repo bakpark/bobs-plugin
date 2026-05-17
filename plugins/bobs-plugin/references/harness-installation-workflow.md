@@ -251,13 +251,44 @@ needs_input:
 
 ## 5. Phase 2 Execution Skills
 
-TBD per Step 7 (§5.1 creator skills args 호환 확인 — §5.1 본문 정리는 Step 6 책임).
+Phase 2 = *자원 작성 시점* — Phase 1 design skill 의 spec `Execution Plan` 항목을 dispatch 받아 신규 자원 (skill / agent / hook) 본문을 작성 + GAP 분석 사이클 적용. runtime 사이클 실행 (`evaluation-loop-runner`) 도 Phase 2 — 명세 작성 후 *실행 시점* 책임.
 
 ### 5.1 Creator skills — `skill-creator` / `agent-creator` / `hook-creator`
 
-GAP-driven, spec 입력 받음. 각 creator 의 §3-§4 는 `creator-gap-eval` skill 호출 (Step 4b 추출) — `resource_type` args (skill / agent / hook) 로 분기, Final Decision (PASS / PASS_WITH_NOTES / REVISE_ASSET / REVISE_GUIDE / SPLIT_ASSET / DEPRECATE_ASSET / NEEDS_REVIEW) 반환받아 §5 (Output to caller) 진행 또는 재호출. workspace 는 plugin-unified `${CLAUDE_PLUGIN_ROOT}/skills/creator-gap-eval-workspace/gaps/` 에 누적.
+**역할**: Phase 1 design skill 의 spec (`Execution Plan` 섹션) 항목별로 dispatch 되어, 신규 자원 (skill / agent / hook) 의 본문을 *작성 + GAP 분석 + 수정 사이클* 로 생산.
 
-상세 본문 (역할 / 입력 args / 호출 패턴 / 산출 contract / args 표) 은 Step 6 plan Task 2 가 채움 — 본 §5.1 은 Step 4b 까지의 진실만 명시.
+**입력**: design skill 의 `Execution Plan` 항목 1개 — `target: <creator-name>` + `args: {<creator-specific keys>}` + `rationale`.
+
+**호출 패턴** (main session 책임):
+
+1. design skill 의 spec `Execution Plan` 섹션 파싱 (workflow doc §4 의 YAML-like 형식)
+2. 각 항목의 `target` 이 가리키는 creator skill 호출
+3. `args` 를 첫 메시지로 전달 (args 가 비어 있으면 creator 의 §0 intent capture 가 사용자에게 질문)
+4. creator 의 §2 effect gate 가 *2단계 effect gate* 의 두 번째 (apply) — 실제 파일 write 직전 사용자 승인
+
+**args 형식** (creator 별 — Step 7 의 호환 인터페이스 정렬 대상):
+
+| Creator | 최소 필수 args |
+|---|---|
+| `skill-creator` | `name` (kebab-case), `scope` (user / project / plugin) |
+| `agent-creator` | `name` (kebab-case), `scope` (user / project / plugin), `subagent_type` (선택 — main session 호출용 식별자) |
+| `hook-creator` | `name` (kebab-case), `event` (PostToolUse / Stop / UserPromptSubmit 등), `matcher` (event 별 — 예: PostToolUse 의 tool 이름), `scope` (user / project) |
+
+`args` 키가 누락된 채 호출되면 creator 의 §0 (intent capture) 가 *부분 입력* 으로 시작 — 사용자에게 누락된 키만 질문 (Step 7 정렬 후 backward-compatible 보장).
+
+**GAP 사이클** (Step 4b 추출): 각 creator 의 §3-§4 는 `creator-gap-eval` skill 호출 stub — `resource_type` args (skill / agent / hook) 로 분기, Final Decision (PASS / PASS_WITH_NOTES / REVISE_ASSET / REVISE_GUIDE / SPLIT_ASSET / DEPRECATE_ASSET / NEEDS_REVIEW) 반환받아 §5 (Output to caller) 진행 또는 재호출. workspace 는 plugin-unified `${CLAUDE_PLUGIN_ROOT}/skills/creator-gap-eval-workspace/gaps/` 에 누적.
+
+**산출 contract** (creator §5 Output):
+
+```yaml
+created/updated: <relative path>
+scope: user | project | plugin
+gap: <Final Decision> (rounds: <N>)
+findings: P0=<n>, P1=<n>, P2=<n>, P3=<n>
+gap_report: <path to *.GAP.md>
+```
+
+`Final Decision` 이 `PASS` / `PASS_WITH_NOTES` 가 아니면 `blocked: needs revision` prefix. main session 은 blocked 시 다음 Execution Plan 항목으로 진행하지 *말고* 사용자에게 보고.
 
 ### 5.2 `evaluation-loop-runner` — runtime cycle
 
