@@ -1,0 +1,20 @@
+spec_version: v2
+generated_by: resource-design
+date: 2026-05-17T22:00:00Z
+trigger: "PostToolUse hook for blocking test edits"
+mode: dispatch
+
+execution_plan:
+  - target: hook-creator
+    args:
+      name: block-test-edit
+      event: PreToolUse
+      matcher: Edit
+      scope: project
+    rationale: "사용자 의도 — test/ 디렉토리 직접 편집 차단. PreToolUse Edit 가 적절한 trigger 시점."
+
+  - target: skill-creator
+    args:
+      name: test-edit-policy
+      scope: project
+    rationale: "차단 사유·교정 안내를 위한 보조 skill. hook 만으로 사용자 안내 부족."

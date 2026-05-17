@@ -1,0 +1,29 @@
+spec_version: v2
+generated_by: context-map-architecture
+date: 2026-05-17T22:05:00Z
+trigger: "AGENTS.md + docs tree skeleton 작성"
+mode: self_apply
+
+applied_changes:
+  - file: /Users/dev/myproject/AGENTS.md
+    action: created
+    summary: "AGENTS.md skeleton — 4 agent (researcher / coder / reviewer / runner) 책임 정의 + 호출 contract"
+
+  - file: /Users/dev/myproject/docs/README.md
+    action: created
+    summary: "docs index skeleton — architecture / decisions / domain / integrations / workflows / security 6 카테고리"
+
+  - file: /Users/dev/myproject/docs/architecture.md
+    action: created
+    summary: "architecture skeleton — 본문 prose 는 follow_up"
+
+  - file: /Users/dev/myproject/docs/agent/context-map.md
+    action: created
+    summary: "context-map — 11 자원 (4 agent + 5 skill + 2 hook) 인벤토리 + AGENTS.md / CLAUDE.md cross-ref"
+
+follow_ups:
+  - description: "docs/architecture.md prose 본문 — 사용자가 직접 작성 필요 (skeleton 만 생성됨)"
+    recommended_skill: null
+
+  - description: "docs/agent/roles.md — researcher / coder / reviewer / runner 역할 정의 (skeleton 부재)"
+    recommended_skill: context-map-architecture

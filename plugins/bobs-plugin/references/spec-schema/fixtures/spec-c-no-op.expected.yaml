@@ -1,0 +1,16 @@
+spec_version: v2
+generated_by: resource-design
+date: 2026-05-17T22:10:00Z
+trigger: "test 자동 실행 hook 추가"
+mode: no-op
+
+reasoning: |
+  기존 hook (post-edit-test-runner.sh, PostToolUse Edit matcher) 가 이미
+  test 자동 실행 책임을 수행 중. 신규 hook 작성 시 책임 중복 + matcher
+  충돌 가능성. 사용자 의도가 "test 자동 실행" 이라면 기존 hook 의 matcher
+  확장 (현재 src/ 만 → src/ + test/) 으로 충분.
+
+existing_resources:
+  - name: post-edit-test-runner
+    path: /Users/dev/myproject/.claude/hooks/post-edit-test-runner.sh
+    responsibility: "PostToolUse Edit 후 test 자동 실행 (현재 matcher: src/)"

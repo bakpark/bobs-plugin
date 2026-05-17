@@ -249,7 +249,11 @@ needs_input:
 
 ### spec versioning
 
-`spec_version: v1` 필드를 spec 헤더에 명시. 인터페이스 변경 시 v2 로 bump + 본 §4 의 변경 정책 갱신 + 모든 design/execution skill 의 호환 확인.
+`spec_version: v2` 필드를 spec 헤더에 명시 (v0.3 baseline). spec 구조 (top-level mode discriminator + mode-specific payload) 는 `spec-schema.md` 가 진실 source — 본 §4 는 *워크플로우 통합* (호출 시점 / Routing → spec / spec → dispatch) 만 정의, schema 본문 재생산 금지.
+
+v0.2 의 v1 markdown-like 형식 (`target=<x> | args=<...> | rationale=<한 줄>`) 은 `spec-schema.md` §6 backward compatibility 로 graceful fallback. v0.4 에서 v1 deprecated warning, v0.5 에서 제거.
+
+인터페이스 변경 시 v3 로 bump + 본 §4 의 변경 정책 갱신 + 모든 design/execution skill 의 호환 확인 + `spec-schema.md` 갱신 + `spec-schema/fixtures/` 회귀 검증.
 
 ## 5. Phase 2 Execution Skills
 
