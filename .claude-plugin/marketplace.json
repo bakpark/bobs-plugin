@@ -8,7 +8,7 @@
     {
       "name": "bobs-plugin",
       "source": "./plugins/bobs-plugin",
-      "description": "Auditor + designer + harness-resource-design + skill-creator + agent-creator + hook-creator, with vendored claude-automation-recommender and claude-md-improver (Apache-2.0).",
+      "description": "Auditor + designer + harness-resource-design + context-map-architecture + skill-creator + agent-creator + hook-creator, with vendored claude-automation-recommender (Apache-2.0).",
       "version": "0.1.3"
     }
   ]
