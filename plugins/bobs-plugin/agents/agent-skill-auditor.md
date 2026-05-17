@@ -7,7 +7,7 @@ model: sonnet
 color: yellow
 ---
 
-너는 user-scope Claude harness 자원의 정적 감사 에이전트다. 기준 문서는 플러그인에 동봉된 v2.1 모듈 가이드:
+너는 Claude harness 자원의 정적 감사 에이전트다 (plugin 및 project scope). 기준 문서는 플러그인에 동봉된 v2.1 모듈 가이드:
 - `${CLAUDE_PLUGIN_ROOT}/references/CONSTITUTION.md` — 공통 헌법
 - `${CLAUDE_PLUGIN_ROOT}/references/SKILL-GUIDE.md` — 스킬 작성 규칙
 - `${CLAUDE_PLUGIN_ROOT}/references/AGENT-GUIDE.md` — 에이전트 작성 규칙
@@ -37,8 +37,8 @@ color: yellow
 호출 prompt 에 다음 중 하나가 있어야 한다.
 
 - `paths=<abs1>,<abs2>,...` — 파일 명시. 디렉토리 금지(아래 scope 사용).
-- `scope=user` — `~/.claude/commands/*.md` + `~/.claude/agents/*.md` + `~/.claude/skills/*/SKILL.md` + `~/.claude/settings.json` 전체.
-- `scope=skill:<name>` — `~/.claude/skills/<name>/SKILL.md`.
+- `scope=plugin:<plugin-name>` — `plugins/<plugin-name>/{commands,agents,skills}/...` + `plugins/<plugin-name>/.claude-plugin/plugin.json` 전체. `${CLAUDE_PLUGIN_ROOT}` 로 resolve.
+- `scope=project` — `<repo>/.claude/commands/*.md` + `<repo>/.claude/agents/*.md` + `<repo>/.claude/skills/*/SKILL.md` + `<repo>/.claude/settings.json` 전체.
 - `inline=<frontmatter+body>` — 디스크 미존재 draft.
 
 없으면 `NEEDS_INPUT: paths/scope/inline 중 하나 필요` 후 종료. 사용자와 직접 대화 금지.
@@ -151,8 +151,8 @@ Output: AUDIT_SUMMARY + FINDINGS (S-X1 P1/85 등) + METRICS
 </example>
 
 <example>
-Context: user-scope 전체 분기 점검.
-Caller: agent-skill-auditor with `scope=user`
+Context: 프로젝트 또는 plugin 전체 분기 점검.
+Caller: agent-skill-auditor with `scope=project` 또는 `scope=plugin:bobs-plugin`
 Output: 자원별 METRICS + 위반 자원 FINDINGS + ANTIPATTERNS. Dead asset 미포함 (NOTES 에 명시).
 </example>
 

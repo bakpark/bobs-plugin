@@ -14,12 +14,11 @@
 
 ### Skill inventory
 
-세 곳을 스캔:
+두 곳을 스캔:
 
 ```bash
 ls -d <repo>/.claude/skills/*/ 2>/dev/null
 ls -d <repo>/plugins/*/skills/*/ 2>/dev/null
-ls -d ~/.claude/skills/*/ 2>/dev/null
 ```
 
 각 디렉토리의 `SKILL.md` frontmatter 에서 추출:
@@ -28,14 +27,13 @@ ls -d ~/.claude/skills/*/ 2>/dev/null
 - `description` 첫 1–2 문장 — 어떤 작업 유형에 매핑될지 추정 단서
 - source path — 추적용 (표에는 path 를 적지 않고 name 만 사용)
 
-**충돌 처리**: 동일 `name` 이 여러 scope 에 있으면 user > project > plugin 순으로 우선되는 것이 일반적이지만 환경마다 다르다. 충돌은 별도 follow-up 으로 보고만 한다 — 본 표는 우선순위가 정해지면 그 한 개만 인용.
+**충돌 처리**: 동일 `name` 이 project 와 plugin 양쪽에 있으면 runtime 의 resolve 정책에 따라 다르므로 follow-up 으로만 보고. user-scope 자산은 본 inventory 의 범위 밖 — 사용자가 별도 관리한다.
 
 ### Agent inventory
 
 ```bash
 ls <repo>/.claude/agents/*.md 2>/dev/null
 ls <repo>/plugins/*/agents/*.md 2>/dev/null
-ls ~/.claude/agents/*.md 2>/dev/null
 ```
 
 각 `.md` 에서 frontmatter:
@@ -50,9 +48,8 @@ ls ~/.claude/agents/*.md 2>/dev/null
 
 ```bash
 cat <repo>/.claude/settings.json 2>/dev/null
-cat ~/.claude/settings.json 2>/dev/null
 ls <repo>/.claude/hooks/ 2>/dev/null
-ls ~/.claude/hooks/ 2>/dev/null
+find <repo>/plugins -name "hooks.json" 2>/dev/null
 ```
 
 각 hook 마다:

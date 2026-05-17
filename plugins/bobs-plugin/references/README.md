@@ -2,7 +2,7 @@
 
 위치: `plugins/bobs-plugin/references/`
 생성: 2026-05-16
-용도: 유저 스콥(`~/.claude/`) 의 skill · agent · command · hook · runtime settings 다섯 자원 타입을 설계하고 검토하기 위한 reference collection. 자산 스냅샷은 read-only 사본이며 원본은 각 플러그인 캐시에 있다.
+용도: `bobs-plugin` 이 다루는 skill · agent · command · hook · runtime settings 다섯 자원 타입을 설계하고 검토하기 위한 reference collection. 적용 범위는 플러그인 (`plugins/*/`) 과 프로젝트 (`<repo>/.claude/`) scope — user scope 자산은 본 collection 의 범위 밖. 자산 스냅샷은 read-only 사본이며 원본은 각 플러그인 캐시에 있다.
 
 ---
 

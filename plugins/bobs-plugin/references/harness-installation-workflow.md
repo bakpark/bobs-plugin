@@ -57,10 +57,10 @@
 
 **Inspect 도메인**:
 
-- `<repo>/.claude/skills/`, `plugins/*/skills/`, `~/.claude/skills/` (skill inventory)
+- `<repo>/.claude/skills/`, `plugins/*/skills/` (skill inventory)
 - `<repo>/.claude/agents/`, `plugins/*/agents/` (agent inventory)
 - `<repo>/.claude/settings.json` (hook 등록 + runtime settings)
-- `<repo>/.claude/commands/`, `plugins/*/commands/`, `~/.claude/commands/` (command inventory)
+- `<repo>/.claude/commands/`, `plugins/*/commands/` (command inventory)
 - 사용자 발화의 작업 컨텍스트 (반복 / 일회성 / 격리 / 결정론 / 명시 호출 / 권한 정책)
 - 참고 자산: `references/decision-rules.md` (5-asset taxonomy + 주제 → GUIDE 위치 index), `references/intent-capture.md` (트리거 판단 + escape hatch + 결정 절차), normative GUIDE 직접 참조 (`${CLAUDE_PLUGIN_ROOT}/references/{CONSTITUTION,SKILL,AGENT,COMMAND,HOOK,RUNTIME}-GUIDE.md`), vendored `claude-automation-recommender` (ecosystem 추천)
 
