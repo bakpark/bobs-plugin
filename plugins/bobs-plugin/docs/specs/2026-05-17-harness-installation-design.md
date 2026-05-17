@@ -471,5 +471,5 @@ markdown structured section 이 변하면 모든 design + execution skill 영향
 - Section 3 (migration + 자산 처리) — ✅ 승인됨 (점진 / 섹션 삭제 / agent-creator 완료 / 적극 흡수)
 - Spec self-review — ✅ 4 fix 적용 (args 자유 / 사이클 종료 / 무한 루프 risk / 골격 정의)
 - Open Questions — ✅ 6개 모두 추천안으로 결정
-- 사용자 spec 검토 — 대기 (현재 단계)
+- 사용자 spec 검토 — ✅ 승인됨 (Step 1-7 + 4b 모두 Implemented, version 0.2.0 배포)
 - writing-plans 전환 — 대기

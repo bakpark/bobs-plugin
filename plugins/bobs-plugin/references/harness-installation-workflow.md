@@ -2,7 +2,7 @@
 
 > Normative source: `harness-principles.md`
 > 실행 주체: Claude 메인 세션 (skill 호출 체인)
-> 본 문서의 §3, §5, §6, §7, §8 은 후속 Step (2-6) 에서 자산 작성 후 채워진다.
+> 상태: 모든 섹션 (§1-§8) 채워짐 — Step 1-7 + 4b 완료 (spec `2026-05-17-harness-installation-design.md` 참조).
 
 ## 1. Overview
 
@@ -13,7 +13,9 @@
 - **Phase 1 Diagnose + Design** (선택적 호출) — design skill 들이 현황 진단 + 변경 spec 산출
 - **Phase 2 Execution** (자동 dispatch) — Phase 1 spec 의 Execution Plan 항목별 creator 호출
 
-실행 주체: Claude 메인 세션. sub-agent 없이 skill 호출 체인.
+**실행 주체**: Claude 메인 세션. 별도 Harness-Engineer subagent 는 두지 않는다 — 라우팅·dispatch·종료 조건 enforce 는 메인 세션 책임 (v1 scope). **예외**: 각 creator 의 §3 GAP 분석은 `general-purpose` subagent 1건에 위임 (skill-creator `${CLAUDE_PLUGIN_ROOT}/skills/skill-creator/SKILL.md` §3b) — 평가자 독립성 위해 의도된 분리. v2 검토 항목: orchestration 의 명시적 command 화 (예: `/install-harness`) 또는 dedicated subagent 도입.
+
+**v1 scope** — Phase 2 creator 는 `skill / agent / hook` 3 자원만 자동 dispatch 한다. `command / runtime settings / plugin` 은 design (Phase 1) 결정 후 *수동 적용* — 메인 세션이 사용자에게 변경 본문을 제시하고 사용자가 직접 파일 수정 또는 별도 command 호출. v2 검토: command-creator / runtime-settings-applier / plugin-scaffold creator 추가.
 
 ```
 [사용자 요청]
@@ -44,7 +46,7 @@
 
 ## 3. Phase 1 Design Skills
 
-각 design skill 의 *trigger* / *inspect 도메인* / *spec format* / *effect gate* / *handoff* 정의. 3.1 과 3.3 은 후속 Step (3 / 4) 에서 채운다.
+각 design skill 의 *trigger* / *inspect 도메인* / *spec format* / *effect gate* / *handoff* 정의. 3 design skill (resource-design / context-map-architecture / evaluation-loop-design) 모두 Step 3 / 2 / 4 에서 작성 완료.
 
 ### 3.1 `resource-design`
 
@@ -272,7 +274,7 @@ Phase 2 = *자원 작성 시점* — Phase 1 design skill 의 spec `Execution Pl
 |---|---|
 | `skill-creator` | `name` (kebab-case), `scope` (user / project / plugin) |
 | `agent-creator` | `name` (kebab-case), `scope` (user / project / plugin), `subagent_type` (선택 — main session 호출용 식별자) |
-| `hook-creator` | `name` (kebab-case), `event` (PostToolUse / Stop / UserPromptSubmit 등), `matcher` (event 별 — 예: PostToolUse 의 tool 이름), `scope` (user / project) |
+| `hook-creator` | `name` (kebab-case), `event` (PostToolUse / Stop / UserPromptSubmit 등), `matcher` (event 별 — 예: PostToolUse 의 tool 이름), `scope` (user / project / plugin — plugin scope 는 `plugins/<plugin>/hooks/<name>/hooks.json` 디렉토리 단위 등록) |
 
 `args` 키가 누락된 채 호출되면 creator 의 §0 (intent capture) 가 *부분 입력* 으로 시작 — 사용자에게 누락된 키만 질문 (Step 7 정렬 후 backward-compatible 보장).
 
