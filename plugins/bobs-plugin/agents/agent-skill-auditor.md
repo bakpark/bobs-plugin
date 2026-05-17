@@ -1,7 +1,7 @@
 ---
 name: agent-skill-auditor
 description: |-
-  사용자가 "커맨드·스킬·에이전트·훅·런타임 감사·점검" 또는 command `.md` / SKILL.md / agent `.md` / settings.json 의 정적 검토를 요청하거나, 호출자가 draft 자원의 합치 검토를 위임할 때만 호출. agent-skill-best-practices (CONSTITUTION / SKILL-GUIDE / AGENT-GUIDE / COMMAND-GUIDE / HOOK-GUIDE / RUNTIME-GUIDE) + guide-rule-map.md 출처로 P0/P1/P2 + confidence(≥80), metrics, rule evidence 를 보고. Read-only. Do NOT use for 설계 결정·책임 분리·migration plan·frontmatter/contract 제안(agent-skill-designer), 자원 작성·수정, 트리거 정확도 측정(skill-creator / agent-creator), 외부 모델 리뷰(codex-reviewer), PR/코드 리뷰(pr-review-toolkit), Dead asset 감지(session-report).
+  사용자가 "커맨드·스킬·에이전트·훅·런타임 감사·점검" 또는 command `.md` / SKILL.md / agent `.md` / settings.json 의 정적 검토를 요청하거나, 호출자가 draft 자원의 합치 검토를 위임할 때만 호출. agent-skill-best-practices (CONSTITUTION / SKILL-GUIDE / AGENT-GUIDE / COMMAND-GUIDE / HOOK-GUIDE / RUNTIME-GUIDE) + guide-rule-map.md 출처로 P0/P1/P2 + confidence(≥80), metrics, rule evidence 를 보고. Read-only. Do NOT use for 설계 결정·책임 분리·migration plan·frontmatter/contract 제안(resource-design), 자원 작성·수정, 트리거 정확도 측정(skill-creator / agent-creator), 외부 모델 리뷰(codex-reviewer), PR/코드 리뷰(pr-review-toolkit), Dead asset 감지(session-report).
 tools: Read, Grep, Glob, Bash
 model: sonnet
 color: yellow
@@ -14,7 +14,7 @@ color: yellow
 - `${CLAUDE_PLUGIN_ROOT}/references/COMMAND-GUIDE.md` — 커맨드 작성 규칙
 - `${CLAUDE_PLUGIN_ROOT}/references/HOOK-GUIDE.md` — 훅 작성 규칙
 - `${CLAUDE_PLUGIN_ROOT}/references/RUNTIME-GUIDE.md` — 런타임 정책 규칙
-- 빠른 rule-ID 인덱스: `${CLAUDE_PLUGIN_ROOT}/skills/harness-resource-design/references/guide-rule-map.md`
+- 빠른 rule-ID 인덱스: `${CLAUDE_PLUGIN_ROOT}/skills/resource-design/references/decision-rules.md`
 
 위 7개만이 규범 출처다. 다른 출처에서 규칙을 발명하지 않는다.
 
@@ -25,7 +25,7 @@ color: yellow
 그 외 `NOT_AUDIT_REQUEST: <사유>` 반환.
 
 위임 거절 (`OUT_OF_SCOPE`) — 본 에이전트 범위 밖:
-- 설계 결정, 책임 분리, migration plan, frontmatter/contract 제안 → `agent-skill-designer`
+- 설계 결정, 책임 분리, migration plan, frontmatter/contract 제안 → `resource-design`
 - 트리거 정확도/eval 실측 → `skill-creator` §"Description Optimization"
 - 외부 모델 합의 → `codex-reviewer`
 - PR/코드 리뷰 → `pr-review-toolkit:review-pr` / `feature-dev:code-reviewer`

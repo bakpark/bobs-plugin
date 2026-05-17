@@ -27,7 +27,7 @@ description: Use when the user wants Korean-only review comments on a PR's diff 
 
 ### 2. Negative cases are non-negotiable for agents
 
-스킬은 invocation slot 을 두고 경쟁하지만, **에이전트는 경쟁 *과* hand off** 한다. negative case 가 없으면 `agent-skill-auditor` 가 design 질문에 dispatch 되거나, `agent-skill-designer` 가 정적 audit 에 dispatch 된다. 가장 가까운 sibling 을 이름과 함께 명시한다.
+스킬은 invocation slot 을 두고 경쟁하지만, **에이전트는 경쟁 *과* hand off** 한다. negative case 가 없으면 `agent-skill-auditor` 가 design 질문에 dispatch 되거나, `resource-design` 이 정적 audit 에 dispatch 된다. 가장 가까운 sibling 을 이름과 함께 명시한다.
 
 ### 3. Keyword Coverage (에이전트 특화)
 

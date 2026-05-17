@@ -1,14 +1,14 @@
 ---
 name: skill-creator
 description: |-
-  Use when creating, scaffolding, editing, or verifying a Claude Code skill (`SKILL.md` under `skills/<name>/`). Triggers on "create a skill", "스킬 만들어줘", "skill 작성·개선", "/skill-name 만들어줘", "draft a skill for X" — including when the user has not yet chosen a name or scope. Do NOT use for writing subagents (`agent-creator`), agent-vs-skill / merge / migration-order decisions (`agent-skill-designer`), static rule audit of an existing skill (`agent-skill-auditor`), or PR/code edits.
+  Use when creating, scaffolding, editing, or verifying a Claude Code skill (`SKILL.md` under `skills/<name>/`). Triggers on "create a skill", "스킬 만들어줘", "skill 작성·개선", "/skill-name 만들어줘", "draft a skill for X" — including when the user has not yet chosen a name or scope. Do NOT use for writing subagents (`agent-creator`), agent-vs-skill / merge / migration-order decisions (`resource-design`), static rule audit of an existing skill (`agent-skill-auditor`), or PR/code edits.
 ---
 
 # skill-creator
 
 Claude Code 스킬(`SKILL.md`) 작성·개선을 위한 절차 메타 스킬. agent-skill-best-practices 기준 문서를 단계별로 읽고, draft → GAP 분석 → 수정 → GAP 재분석을 PASS / PASS_WITH_NOTES 까지 반복한다.
 
-관련 자산: `writing-skills`(discipline), `agent-creator`(서브에이전트), `agent-skill-designer`(타입·책임 결정), `agent-skill-auditor`(정적 rule 감사).
+관련 자산: `writing-skills`(discipline), `agent-creator`(서브에이전트), `resource-design`(타입·책임 결정), `agent-skill-auditor`(정적 rule 감사).
 
 ## Reference Loading Schedule
 
@@ -35,8 +35,8 @@ Claude Code 스킬(`SKILL.md`) 작성·개선을 위한 절차 메타 스킬. ag
 ## When NOT to use
 
 - 서브에이전트(`.md` under `agents/`) 작성 → `agent-creator`.
-- 자원 타입(command / skill / agent / hook / runtime setting) 결정 → `agent-skill-designer`. 본 스킬은 *이미 스킬로 정한 뒤* 시작.
-- 사용자 명시 호출 workflow, 문서 링크/context 주입 라우터 작성 → `agent-skill-designer` 의 command 트랙 또는 `COMMAND-GUIDE.md`.
+- 자원 타입(command / skill / agent / hook / runtime setting) 결정 → `resource-design`. 본 스킬은 *이미 스킬로 정한 뒤* 시작.
+- 사용자 명시 호출 workflow, 문서 링크/context 주입 라우터 작성 → `resource-design` 의 command 트랙 또는 `COMMAND-GUIDE.md`.
 - 기존 스킬의 정적 rule 감사 (P0/P1/P2 + rule ID) → `agent-skill-auditor`. 본 스킬은 §3 에서 GAP 분석을 사용 (영향 기준 평가, rule ID 기반 채점이 아님).
 - 외부 모델 의견 / PR 리뷰 → `codex-reviewer` / `pr-review-toolkit`.
 
@@ -67,10 +67,10 @@ Read ${CLAUDE_PLUGIN_ROOT}/references/CONSTITUTION.md
 
 | 신호 | 위반 | 전환 대상 |
 |---|---|---|
-| 사용자가 직접 시작하는 workflow / 사용자 질문 / plan gate / 단계 진행 | §3.11 — workflow entrypoint 는 command | `agent-skill-designer` (command 트랙) |
+| 사용자가 직접 시작하는 workflow / 사용자 질문 / plan gate / 단계 진행 | §3.11 — workflow entrypoint 는 command | `resource-design` (command 트랙) |
 | docs/specs/decisions/context-map 링크를 모아 하위 자산에 주입하는 라우터 | §3.11 — context router 는 command | `COMMAND-GUIDE.md` 또는 `context-map` |
 | 별도 context / tool 권한 / 별도 model 이 필요한 specialist 역할 | §3.5 — 스킬은 메인 context 에 로드됨 | `agent-creator` |
-| 매 이벤트마다 결정론 보장 필요 | §3.1 — 스킬은 명시 activation, hook 은 결정론 | `harness-resource-design` (hook 트랙) |
+| 매 이벤트마다 결정론 보장 필요 | §3.1 — 스킬은 명시 activation, hook 은 결정론 | `resource-design` (hook 트랙) |
 | 프로젝트 고유 규칙 | §3.6 — reusable 자산이 아닌 local convention | `CLAUDE.md` |
 | 회고·서사·세션 사후 정리 | §3.6 — 재사용 method 아님 | PR 설명 / docs |
 

@@ -1,7 +1,7 @@
 ---
 name: context-map-architecture
 description: |-
-  Use when designing or refreshing the project's docs tree — `AGENTS.md` / `CLAUDE.md` / `docs/README.md` (index) / `docs/agent/context-map.md` / `docs/architecture.md` skeleton / `docs/decisions/` / `docs/domain/` skeleton / `docs/integrations/` / `docs/workflows/` / `docs/security.md`. Triggers on "AGENTS.md 만들어줘", "CLAUDE.md audit", "context map 갱신", "docs 정리", "harness 문서 인덱싱", "docs/architecture skeleton 필요", "빈 프로젝트 하네스 docs 셋업". Do NOT use for deciding resource type (skill/agent/hook) — `harness-resource-design` / `agent-skill-designer`. Do NOT use for writing individual skill/agent/hook files — `skill-creator` / `agent-creator` / `hook-creator`. Do NOT use for evaluation infrastructure (task log, golden-set) — `evaluation-loop-design`. Do NOT write the *prose body* of `docs/architecture.md` / `docs/domain/` — this skill produces *skeletons* (section headers + placeholders) only; humans fill bodies. `docs/agent/roles.md` body is also outside scope — only inventory-inspected and seeded as follow-up.
+  Use when designing or refreshing the project's docs tree — `AGENTS.md` / `CLAUDE.md` / `docs/README.md` (index) / `docs/agent/context-map.md` / `docs/architecture.md` skeleton / `docs/decisions/` / `docs/domain/` skeleton / `docs/integrations/` / `docs/workflows/` / `docs/security.md`. Triggers on "AGENTS.md 만들어줘", "CLAUDE.md audit", "context map 갱신", "docs 정리", "harness 문서 인덱싱", "docs/architecture skeleton 필요", "빈 프로젝트 하네스 docs 셋업". Do NOT use for deciding resource type (skill/agent/hook) — `resource-design`. Do NOT use for writing individual skill/agent/hook files — `skill-creator` / `agent-creator` / `hook-creator`. Do NOT use for evaluation infrastructure (task log, golden-set) — `evaluation-loop-design`. Do NOT write the *prose body* of `docs/architecture.md` / `docs/domain/` — this skill produces *skeletons* (section headers + placeholders) only; humans fill bodies. `docs/agent/roles.md` body is also outside scope — only inventory-inspected and seeded as follow-up.
 user-invocable: true
 ---
 
@@ -22,7 +22,7 @@ user-invocable: true
 
 **When NOT to use**:
 
-- 자원 타입 결정 (skill / agent / hook / docs 중 무엇?) → `harness-resource-design` 또는 `agent-skill-designer`.
+- 자원 타입 결정 (skill / agent / hook / docs 중 무엇?) → `resource-design`.
 - 개별 skill / agent / hook 파일 작성 → `skill-creator` / `agent-creator` / `hook-creator`.
 - 검증 인프라 (task log / golden-set / 사이클) → `evaluation-loop-design` (예정).
 - `docs/architecture.md` / `docs/domain/` 의 *본문 prose* — 본 스킬은 *skeleton* (섹션 헤더 + placeholder + 안내 코멘트) 까지만 작성. 본문 prose 는 사람 / 후속 작업.
