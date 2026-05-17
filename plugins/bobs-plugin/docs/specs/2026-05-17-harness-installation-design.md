@@ -337,11 +337,11 @@ Outline:
 
 본 Step 이 *Step 5 의 prerequisite* — Step 5 의 `evaluation-loop-runner` 가 creator chain 패턴 (creator-gap-eval 별도 skill) 을 인지한 채 자동 chain 설계해야 함. 본 Step 후 Step 7 (Creator skill spec 호환 확인) 의 *호환 대상* 도 정확해짐.
 
-### Step 5. `evaluation-loop-runner` skill 작성
+### Step 5. `evaluation-loop-runner` skill 작성 ✅
 
-5a. 신규 — runtime 동작 중심. task log 캡처 + gap 분석 + 라우팅.
-5b. GAP 분석 → PASS.
-5c. workflow doc §5.2 / §6 채움.
+5a. ✅ runtime 동작 중심. task log 캡처 + gap 분석 + 라우팅. SKILL.md (~205 lines) + references 2 (`runtime-protocol.md` + `log-entry-write.md`).
+5b. ✅ GAP 분석 → PASS_WITH_NOTES (P0=0, P1=0, P2=3, P3=5, GUIDE_GAP=1). general-purpose subagent 위임 (creator-gap-eval cache 미반영 fallback). P2 3건 + P3 GAP-004 (drift-avoidance) 적용. 잔류 follow-up: P3 GAP-003/005/006 + GUIDE_GAP GAP-007.
+5c. ✅ workflow doc §5.2 채움 (Step 5 책임). §6 chain 절차 본문은 Step 6 책임 — spec §7 Step 5c 의 `/` 모호성 해소: alternation, §5.2 만.
 
 ### Step 6. workflow doc 최종 정리
 
@@ -370,6 +370,7 @@ Outline:
 | `agent-creator` | 유지 — §3-§4 stub 축약 (creator-gap-eval 호출) | Step 4b / Step 7 |
 | `hook-creator` | 유지 — §3-§4 stub 축약 (creator-gap-eval 호출). 본문 완성은 Step 7 | Step 4b / Step 7 |
 | `creator-gap-eval` (신규) | 유지 — 3 creator chain 의 §3 호출 대상 + 사용자 직접 호출 (`user-invocable: true`). 통합 workspace `creator-gap-eval-workspace/gaps/` | Step 4b |
+| `evaluation-loop-runner` (신규) | 유지 — runtime executor (명세는 evaluation-loop-design 산출, 본 runner 가 실행). stateless, 자동 chain + 종료 조건 4종 enforce main session 책임. `user-invocable: true` (명시 호출 우선 — spec §10 Decision 5) | Step 5 |
 
 ## 9. Risks
 

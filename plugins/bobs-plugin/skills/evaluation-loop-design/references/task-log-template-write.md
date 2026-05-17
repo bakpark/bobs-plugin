@@ -4,7 +4,7 @@
 > Normative source: `${CLAUDE_PLUGIN_ROOT}/references/harness-principles.md` (line 294 — task-log-capture pair + line 381 — task log 가 `evaluation-loop.md` 의 입력). 본 절차가 우선이며, 원문 규칙이 필요할 때만 normative source 직접 참조.
 > 소유: 동일 저장소 owner (MIT — 별도 attribution 불요).
 
-`docs/agent/task-log-template.md` 는 *작업 종료 시 캡처할 entry 의 schema* — evaluation-loop 사이클 단계 #1 의 산출 형식. runtime (`evaluation-loop-runner` — planned as of 2026-05-17, target Step 5 of `harness-installation-workflow.md`) 이 본 template 을 따라 `docs/agent/logs/YYYY-MM-DD-*.md` 를 생성. runner 부재 시 본 template 은 *수동* 사용 가능 (사용자가 직접 entry 작성).
+`docs/agent/task-log-template.md` 는 *작업 종료 시 캡처할 entry 의 schema* — evaluation-loop 사이클 단계 #1 의 산출 형식. runtime (`evaluation-loop-runner` skill — `${CLAUDE_PLUGIN_ROOT}/skills/evaluation-loop-runner/`, Step 5 완료 — 2026-05-17 시점 존재 확정) 이 본 template 을 따라 `docs/agent/logs/YYYY-MM-DD-*.md` 를 생성. runner 미호출 시 본 template 은 *수동* 사용 가능 (사용자가 직접 entry 작성).
 
 본 reference 는 `evaluation-loop-design` Phase 3 의 *첫 단계* wrapper. 다른 자산 (roles / golden-set / evaluation-loop) 이 본 template 의 entry schema 를 인용 — 의존성 root.
 

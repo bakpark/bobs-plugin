@@ -4,7 +4,7 @@
 > Normative source: `${CLAUDE_PLUGIN_ROOT}/references/harness-principles.md` §4.5 (Context Map 라우팅) + `${CLAUDE_PLUGIN_ROOT}/docs/specs/2026-05-17-harness-installation-design.md` §4.4 (`evaluation-loop-runner` runtime 동작). 본 절차가 우선이며, 원문 규칙이 필요할 때만 normative source 직접 참조.
 > 소유: 동일 저장소 owner (MIT — 별도 attribution 불요).
 
-`docs/agent/evaluation-loop.md` 는 평가 사이클의 *명세* — 진입 조건 / 사이클 단계 / 종료 조건 / Routing Decision 표 (어디로 환원할지). 본 문서는 *design time* spec — runtime 실행은 `evaluation-loop-runner` (planned as of 2026-05-17, target Step 5 of `harness-installation-workflow.md` — 본 reference 적용 시 runner 자산 존재 여부 재확인 필요).
+`docs/agent/evaluation-loop.md` 는 평가 사이클의 *명세* — 진입 조건 / 사이클 단계 / 종료 조건 / Routing Decision 표 (어디로 환원할지). 본 문서는 *design time* spec — runtime 실행은 `evaluation-loop-runner` skill (`${CLAUDE_PLUGIN_ROOT}/skills/evaluation-loop-runner/`, Step 5 완료 — 2026-05-17 시점 존재 확정).
 
 본 reference 는 `evaluation-loop-design` Phase 3 의 마지막 단계 wrapper. roles + golden-set + task-log-template 이 모두 확정된 후에 호출 (의존성: roles 의 실패 표면 + golden-set 의 case + task-log-template 의 entry schema 모두 인용).
 

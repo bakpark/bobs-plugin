@@ -39,6 +39,7 @@ Claude Code 스킬(`SKILL.md`) 작성·개선을 위한 절차 메타 스킬. ag
 - 사용자 명시 호출 workflow, 문서 링크/context 주입 라우터 작성 → `resource-design` 의 command 트랙 또는 `COMMAND-GUIDE.md`.
 - 기존 스킬의 정적 rule 감사 (P0/P1/P2 + rule ID) → `agent-skill-auditor`. 본 스킬은 §3 에서 GAP 분석을 사용 (영향 기준 평가, rule ID 기반 채점이 아님).
 - 검증 인프라 (task log / golden-set / evaluation loop / `docs/agent/roles.md` body) → `evaluation-loop-design`.
+- runtime 사이클 실행 (task log entry write + golden-set 비교 + Routing Decision) → `evaluation-loop-runner`. 본 스킬은 *skill 작성* 만, runtime 실행 아님.
 - 외부 모델 의견 / PR 리뷰 → `codex-reviewer` / `pr-review-toolkit`.
 
 ## 0. Capture intent
