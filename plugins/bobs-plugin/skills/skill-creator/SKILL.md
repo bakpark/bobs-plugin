@@ -134,130 +134,34 @@ Read ${CLAUDE_PLUGIN_ROOT}/references/SKILL-GUIDE.md
 - 본문 길이: SKILL-GUIDE §11 의 heuristic 으로 ≤ 500 lines 가 검토 신호. 초과 시 `references/` 분리를 검토 (hard limit 아님 — 메타 스킬은 정당화 가능)
 - 여러 언어로 분산하기보다 한 도메인을 깊게 작성한다
 
-## 3. GAP 분석
+## 3. GAP 분석 (creator-gap-eval 호출)
 
-**먼저 읽는다**:
+본 절차는 `creator-gap-eval` skill 이 통합 처리한다 (Step 4b 추출 결과). §0-§2 에서 결정된 다음 값으로 호출 — workspace 는 creator-gap-eval 이 자체 결정 (plugin 단위 통합 — `${CLAUDE_PLUGIN_ROOT}/skills/creator-gap-eval-workspace/gaps/`).
 
-```bash
-Read ${CLAUDE_PLUGIN_ROOT}/references/GAP-FORMAT.md
-Read ${CLAUDE_PLUGIN_ROOT}/references/GAP-ANALYSIS-PROMPT.md
+```yaml
+resource_type: skill
+draft_path:
+  - <SKILL_PATH>/SKILL.md        # §2 에서 결정된 절대 경로
+asset_name: <name>               # §1 에서 결정된 kebab-case. report = skill-<name>.GAP.md
+delegation_mode: delegate        # 기본 위임 (비용 절감 필요 시 inline)
+reentry_count: 0                 # 본 creator 가 호출하는 경로는 항상 0 (creator-gap-eval 자기 자신 분석 아님)
+round_count: 0                   # REVISE_ASSET 재호출 시 +1 (5 초과 시 NEEDS_REVIEW)
 ```
 
-GAP-FORMAT 의 §1 목적 (자산이 v2 원칙과 얼마나 맞는지 + 형식 차이가 아니라 영향 기준) + §6 GAP 유형 (ASSET_GAP / GUIDE_GAP / AMBIGUITY / INTENTIONAL_EXCEPTION / NO_GAP) + §7 Severity (P0–P3) 를 적용 기준으로.
+호출 (Claude Code 환경): `Skill` tool 로 `creator-gap-eval` 활성화. 반환 yaml 의 `final_decision` 으로 분기 — 상세는 §4 참조. `report_path` 는 통합 workspace 의 절대 경로 반환.
 
-### 3a. Workspace 준비
+## 4. Self-feedback refine — Final Decision 처리
 
-```bash
-SKILL_PATH="<absolute path to new SKILL.md dir>"
-WORKSPACE="${SKILL_PATH}-workspace"
-mkdir -p "$WORKSPACE/gaps"
-```
+`creator-gap-eval` 의 반환 yaml 을 받아 다음 분기:
 
-리포트 저장 경로: `$WORKSPACE/gaps/skill-<name>.GAP.md`.
+- `PASS` / `PASS_WITH_NOTES` → §5 (Output to caller) 로 진행
+- `REVISE_GUIDE` → 사용자 보고 후 §5 (자산은 일단 통과)
+- `REVISE_ASSET` → P0/P1/P2 적용 (§2 시점 B gate 거침) 후 `creator-gap-eval` 재호출 (`round_count + 1`)
+- `SPLIT_ASSET` → §0 으로 복귀, 책임 분리 재설계
+- `DEPRECATE_ASSET` → 사용자 confirm 후 폐기 권고
+- `NEEDS_REVIEW` → 사용자 입력 받기 (creator-gap-eval 의 reentry_count 한도 또는 round_count 한도 초과 포함)
 
-### 3b. GAP 분석 위임 (권장)
-
-generic subagent 로 GAP 분석을 위임한다. prompt 는 GAP-ANALYSIS-PROMPT 본문 (markdown fence 안쪽) 을 그대로 사용하되, 분석 대상은 새 스킬 1개로 제한한다.
-
-현재 환경의 *subagent dispatch 도구* 를 사용한다. Claude Code 환경에서는 `Agent` 도구 + `subagent_type: "general-purpose"`; 다른 환경에서는 동등 메커니즘을 사용한다.
-
-**경로 resolve 책임** — 위임 prompt 의 cwd 필드는 main session 이 *절대 경로* 로 채워서 보낸다 (`${CLAUDE_PLUGIN_ROOT}/references` 우선, env 미설정 시 §Reference Loading Schedule 의 fallback `../../references/`). subagent 는 resolved path 만 보며, 환경 변수 확장이나 fallback 판단을 하지 않는다.
-
-Claude Code 예시 (dispatch 시 `<RESOLVED_REFS_DIR>` 는 main session 이 실제 절대 경로로 치환):
-
-```
-subagent_type: "general-purpose"
-description: "GAP analysis of new skill: <name>"
-prompt:
-  ---
-  현재 작업 디렉토리는 <RESOLVED_REFS_DIR> 이다.
-  너는 이 대화의 이전 컨텍스트를 전혀 모른다고 가정하고, 현재 cwd 안의 파일만
-  기준으로 GAP 분석을 수행한다. 단, 분석 대상은 외부 경로 1건:
-
-    <SKILL_PATH>/SKILL.md
-
-  반드시 먼저 읽을 문서 (cwd 내):
-    - CONSTITUTION.md
-    - SKILL-GUIDE.md
-    - GAP-FORMAT.md
-
-  리포트 저장 경로:
-    <WORKSPACE>/gaps/skill-<name>.GAP.md
-
-  [이하 GAP-ANALYSIS-PROMPT.md 의 §"판정 원칙" / §"원칙 강도" / §"Finding 유형" /
-   §"Severity" / §"Skill 점검 축" / §"Evidence 작성 규칙" / §"리포트 구조" /
-   §"최종 결정" / §"완료 보고" 섹션 verbatim 으로 복사]
-  ---
-```
-
-**위임 prompt 본문 구성** — dispatch 직전에 `${CLAUDE_PLUGIN_ROOT}/references/GAP-ANALYSIS-PROMPT.md` 를 한 번 더 `Read` 하고, 아래 9 개 heading 의 *본문* (heading 다음 줄부터 다음 heading 직전까지) 을 *순서·원문 그대로* 복사해 dispatch payload 의 placeholder 자리에 붙여 넣는다. heading 이름 자체는 본 스킬이 이미 인용했으므로 복사 대상이 아니다.
-
-복사 순서: §판정 원칙 → §원칙 강도 → §Finding 유형 → §Severity → §Skill 점검 축 → §Evidence 작성 규칙 → §리포트 구조 → §최종 결정 → §완료 보고.
-
-복사하지 않는 섹션 (본 스킬의 dispatch envelope 가 직접 지시 → 중복 회피): §목표 / §반드시 먼저 읽을 문서 / §분석 대상 / §수정 가능 범위 / §작업 방식. 본 스킬은 *단일 스킬* 분석이므로 이들 섹션의 multi-asset 가정은 부적용.
-
-위임 이유: main context 절약 + GAP-FORMAT 의 "이전 컨텍스트를 전혀 모른다고 가정" 원칙 충족 (평가자 독립성).
-
-### 3c. 직접 GAP 분석 (경량 1차 평가)
-
-비용을 줄여야 하면 main 세션이 직접 GAP-FORMAT §9 의 10개 섹션 (Metadata → Executive Summary → Asset Snapshot → Applicable Criteria → Checks → Findings → Acceptable Deviations → Suggested Changes → Follow-up Questions → Final Decision) 을 작성한다. 평가자 독립성이 약하므로 §3b 위임을 1회 이상 거치는 것이 권장된다.
-
-### 3d. Self-Check (리포트 작성 전 GAP-FORMAT §17)
-
-위임 결과를 받거나 인라인을 마치기 전 8개 self-check:
-1. 헌법 → 타입별 가이드 → GAP-FORMAT 순서로 적용했나?
-2. `guide_ref` 가 실제 존재하는 heading 인가?
-3. finding 은 형식 차이가 아니라 실제 영향 (라우팅·안전·산출·재사용·유지보수) 인가?
-4. heuristic 을 hard rule 처럼 적용하지 않았나?
-5. platform behavior 를 확인 없이 단정하지 않았나?
-6. 좋은 예외를 finding 으로 과잉 승격하지 않았나?
-7. recommendation 이 asset 수정인지 guide 수정인지 명확한가?
-8. Constitution Review 를 너무 쉽게 제안하지 않았나?
-
-## 4. Self-feedback refine
-
-**먼저 읽는다 (이번 라운드 산출물)**:
-
-```bash
-Read $WORKSPACE/gaps/skill-<name>.GAP.md
-```
-
-§13 Findings + §15 Suggested Changes + §16 Final Decision 을 본다.
-
-### 4a. Final Decision 별 행동
-
-| Final Decision | 행동 |
-|---|---|
-| `PASS` | 종료 (§5 로 진행) |
-| `PASS_WITH_NOTES` | 낮은 severity finding 또는 acceptable deviation 만 잔류 — 옵션 적용 후 §5 |
-| `REVISE_ASSET` | P0/P1/P2 적용 후 §3 재실행 |
-| `REVISE_GUIDE` | 본 스킬 범위 밖 — 사용자에게 보고하고 §5 (자산은 일단 통과) |
-| `SPLIT_ASSET` | §0 으로 복귀, 책임 분리 재설계 |
-| `DEPRECATE_ASSET` | 호출 경로·차별점 모두 약함 — 폐기 권고로 사용자 confirm |
-| `NEEDS_REVIEW` | 근거가 부족하거나 추정이 많은 경우 — 사용자 입력 받기 |
-
-### 4b. Finding 적용 순서
-
-**각 finding 의 적용은 §2 의 시점 B gate (변경 요약 제시 → 사용자 명시 신호 → 수정) 를 거친다.** 아래 순위는 *어떤 finding 을 먼저 처리할지* 의 우선순위이며, gate 자체를 우회하지 않는다 — "적용 의무" 는 *순위가 높다* 는 뜻이지 *gate 생략* 의 뜻이 아니다.
-
-1. **P0 first** — 안전 / 데이터 / destructive. 최우선 처리.
-2. **P1** — 라우팅 / 권한 / 부수 효과 / 산출 신뢰성. 다음 우선.
-3. **P2** — 품질·반복 비용. 사용자 위임 가능 (기본 적용 권장).
-4. **P3** — 보고만 하고 적용은 선택으로 둔다.
-
-각 finding 의 `Recommendation` 필드를 따른다. evidence 가 약하거나 `AMBIGUITY` 면 사용자 확인 후 진행.
-
-### 4c. Re-run gate
-
-수정 후 §3 재실행. 라운드 카운트 증가.
-
-- 3 라운드까지: 평소 흐름.
-- 3 라운드 초과: §0 의 *책임* 정의로 복귀 — 책임 모호가 진짜 원인. 또는 자원 타입이 잘못 잡혔는지 (skill 이 아닌 command / agent / hook / runtime settings / CLAUDE.md) 재검토.
-- 5 라운드 초과: 사용자에게 보고하고 NEEDS_REVIEW 로 종료.
-
-### 4d. GUIDE_GAP 처리
-
-자산이 좋은데 가이드가 잡지 못해 false positive 가 나오면 (`GUIDE_GAP`): 자산은 수정하지 *말고* 사용자에게 보고. 가이드 보완은 본 스킬 범위 밖 (다음 v3 사이클의 입력).
+라운드 5 초과 시 `creator-gap-eval` 이 `NEEDS_REVIEW` 반환 (round_count 한도). Finding 적용 / Re-run gate / GUIDE_GAP 의 상세 절차는 `creator-gap-eval/SKILL.md` Phase 7-9 와 `references/resource-type-matrix.md` 의 자원별 분기 행 참조.
 
 ## 5. Output to caller
 

@@ -141,128 +141,37 @@ Read ${CLAUDE_PLUGIN_ROOT}/references/HOOK-GUIDE.md
 - state 가 필요하면 단일 store 에 session_id 를 key 로 — session 별 파일 산재 금지 (HOOK-GUIDE §10.6)
 - Stop 훅 자기 재호출은 §10.5 의 5개 안전 요건 (opt-in / iteration cap / completion gate / visibility / stop path) 모두 충족 시에만 가능
 
-## 3. GAP 분석
+## 3. GAP 분석 (creator-gap-eval 호출)
 
-**먼저 읽는다**:
+본 절차는 `creator-gap-eval` skill 이 통합 처리한다 (Step 4b 추출 결과). §0-§2 에서 결정된 다음 값으로 호출 — workspace 는 creator-gap-eval 이 자체 결정 (plugin 단위 통합 — `${CLAUDE_PLUGIN_ROOT}/skills/creator-gap-eval-workspace/gaps/`).
 
-```bash
-Read ${CLAUDE_PLUGIN_ROOT}/references/GAP-FORMAT.md
-Read ${CLAUDE_PLUGIN_ROOT}/references/GAP-ANALYSIS-PROMPT.md
+```yaml
+resource_type: hook
+draft_path:                          # 훅은 script + registration 한 쌍 — 2 파일 list
+  - <SCRIPT_PATH>                    # §1 에서 결정 (HOOK_DIR/<script>)
+  - <REGISTRATION_PATH>              # §2 에서 결정 (hooks.json 또는 settings.json)
+asset_name: <name>                   # §1 에서 결정된 kebab-case. report = hook-<name>.GAP.md
+delegation_mode: delegate            # 기본 위임 (비용 절감 필요 시 inline)
+reentry_count: 0                     # 본 creator 가 호출하는 경로는 항상 0
+round_count: 0                       # REVISE_ASSET 재호출 시 +1 (5 초과 시 NEEDS_REVIEW)
 ```
 
-GAP-FORMAT 의 §1 목적 (자산이 v2 원칙과 얼마나 맞는지 + 형식 차이가 아니라 영향 기준) + §6 GAP 유형 (ASSET_GAP / GUIDE_GAP / AMBIGUITY / INTENTIONAL_EXCEPTION / NO_GAP) + §7 Severity (P0–P3) + §11.3 Hook Snapshot + §12.3 Hook Checks 를 적용 기준으로.
+호출 (Claude Code 환경): `Skill` tool 로 `creator-gap-eval` 활성화. 반환 yaml 의 `final_decision` 으로 분기 — 상세는 §4 참조. `report_path` 는 통합 workspace 의 절대 경로 반환.
 
-### 3a. Workspace 준비
+훅-특화 분기 (GAP-FORMAT §11.4 Hook Snapshot · §12.4 Hook Checks · destructive Bash / 숨은 외부 송신 같은 P0 패턴 / matcher vs advisory 충돌 같은 P1 패턴 / Mixed responsibility 분할 같은 SPLIT_ASSET 신호) 는 `creator-gap-eval/references/resource-type-matrix.md` 의 hook 컬럼이 흡수.
 
-```bash
-HOOK_DIR="<absolute path to hook dir>"      # plugin 스코프면 hooks/<name>/, user 스코프면 hooks/<name>-workspace 부모로 hooks/ 사용
-WORKSPACE="${HOOK_DIR}-workspace"
-mkdir -p "$WORKSPACE/gaps"
-```
+## 4. Self-feedback refine — Final Decision 처리
 
-리포트 저장 경로: `$WORKSPACE/gaps/hook-<name>.GAP.md`.
+`creator-gap-eval` 의 반환 yaml 을 받아 다음 분기:
 
-user/project 스코프에서 훅이 디렉토리 없이 flat 한 script 파일로 존재하면 (`~/.claude/hooks/<name>.sh`), workspace 는 `~/.claude/hooks/<name>-workspace/` 로 둔다.
+- `PASS` / `PASS_WITH_NOTES` → §5 (Output to caller) 로 진행
+- `REVISE_GUIDE` → 사용자 보고 후 §5 (자산은 일단 통과)
+- `REVISE_ASSET` → P0/P1/P2 적용 (§2 시점 B gate 거침) 후 `creator-gap-eval` 재호출 (`round_count + 1`). **registration 변경은 자동 실행 범위에 직접 영향** — 항상 시점 B gate 지킴
+- `SPLIT_ASSET` → §0 으로 복귀, 책임 분리 재설계 (Mixed responsibility — formatter/blocker/logger 분할)
+- `DEPRECATE_ASSET` → 사용자 confirm 후 폐기 권고
+- `NEEDS_REVIEW` → 사용자 입력 받기 (creator-gap-eval 의 reentry_count 한도 또는 round_count 한도 초과 포함)
 
-### 3b. GAP 분석 위임 (권장)
-
-generic subagent 로 GAP 분석을 위임한다. prompt 는 GAP-ANALYSIS-PROMPT 본문 (markdown fence 안쪽) 을 그대로 사용하되, 분석 대상은 새 훅 1건 (script 파일 + registration 파일 한 쌍) 으로 제한한다.
-
-현재 환경의 *subagent dispatch 도구* 를 사용한다. Claude Code 환경에서는 `Agent` 도구 + `subagent_type: "general-purpose"`; 다른 환경에서는 동등 메커니즘을 사용한다.
-
-**경로 resolve 책임** — 위임 prompt 의 cwd 필드는 main session 이 *절대 경로* 로 채워서 보낸다 (`${CLAUDE_PLUGIN_ROOT}/references` 우선, env 미설정 시 §Reference Loading Schedule 의 fallback `../../references/`). subagent 는 resolved path 만 보며, 환경 변수 확장이나 fallback 판단을 하지 않는다.
-
-Claude Code 예시 (dispatch 시 `<RESOLVED_REFS_DIR>` 는 main session 이 실제 절대 경로로 치환):
-
-```
-subagent_type: "general-purpose"
-description: "GAP analysis of new hook: <name>"
-prompt:
-  ---
-  현재 작업 디렉토리는 <RESOLVED_REFS_DIR> 이다.
-  너는 이 대화의 이전 컨텍스트를 전혀 모른다고 가정하고, 현재 cwd 안의 파일만
-  기준으로 GAP 분석을 수행한다. 단, 분석 대상은 외부 경로의 hook 1건 — script
-  + registration 한 쌍:
-
-    <SCRIPT_PATH>            # 예: /…/hooks/<name>/<script>
-    <REGISTRATION_PATH>      # 예: /…/hooks/<name>/hooks.json 또는 settings.json
-
-  반드시 먼저 읽을 문서 (cwd 내):
-    - CONSTITUTION.md
-    - HOOK-GUIDE.md
-    - GAP-FORMAT.md   (특히 §11.3 Hook Snapshot, §12.3 Hook Checks)
-
-  리포트 저장 경로:
-    <WORKSPACE>/gaps/hook-<name>.GAP.md
-
-  [이하 GAP-ANALYSIS-PROMPT.md 의 §"판정 원칙" / §"원칙 강도" / §"Finding 유형" /
-   §"Severity" / §"Hook 점검 축" / §"Evidence 작성 규칙" / §"리포트 구조" /
-   §"최종 결정" / §"완료 보고" 섹션 verbatim 으로 복사]
-  ---
-```
-
-위임 이유: main context 절약 + GAP-FORMAT 의 "이전 컨텍스트를 전혀 모른다고 가정" 원칙 충족 (평가자 독립성).
-
-### 3c. 직접 GAP 분석 (경량 1차 평가)
-
-비용을 줄여야 하면 main 세션이 직접 GAP-FORMAT §9 의 10개 섹션 (Metadata → Executive Summary → Asset Snapshot → Applicable Criteria → Checks → Findings → Acceptable Deviations → Suggested Changes → Follow-up Questions → Final Decision) 을 작성한다. Asset Snapshot 은 §11.3 Hook 양식, Checks 는 §12.3 Hook 양식. 평가자 독립성이 약하므로 §3b 위임을 1회 이상 거치는 것이 권장된다.
-
-### 3d. Self-Check (리포트 작성 전 GAP-FORMAT §17)
-
-위임 결과를 받거나 인라인을 마치기 전 8개 self-check:
-1. 헌법 → HOOK-GUIDE → GAP-FORMAT 순서로 적용했나?
-2. `guide_ref` 가 실제 존재하는 heading 인가?
-3. finding 은 형식 차이가 아니라 실제 영향 (라우팅·안전·산출·재사용·유지보수) 인가?
-4. heuristic 을 hard rule 처럼 적용하지 않았나?
-5. hook schema · exit code · matcher precedence 같은 platform behavior 를 확인 없이 단정하지 않았나?
-6. 좋은 예외를 finding 으로 과잉 승격하지 않았나?
-7. recommendation 이 asset 수정인지 guide 수정인지 명확한가?
-8. Constitution Review 를 너무 쉽게 제안하지 않았나?
-
-## 4. Self-feedback refine
-
-**먼저 읽는다 (이번 라운드 산출물)**:
-
-```bash
-Read $WORKSPACE/gaps/hook-<name>.GAP.md
-```
-
-§13 Findings + §15 Suggested Changes + §16 Final Decision 을 본다.
-
-### 4a. Final Decision 별 행동
-
-| Final Decision | 행동 |
-|---|---|
-| `PASS` | 종료 (§5 로 진행) |
-| `PASS_WITH_NOTES` | 낮은 severity finding 또는 acceptable deviation 만 잔류 — 옵션 적용 후 §5 |
-| `REVISE_ASSET` | P0/P1/P2 적용 후 §3 재실행 |
-| `REVISE_GUIDE` | 본 스킬 범위 밖 — 사용자에게 보고하고 §5 (자산은 일단 통과) |
-| `SPLIT_ASSET` | §0 으로 복귀, 책임 분리 재설계 (Mixed responsibility — formatter/blocker/logger 분할) |
-| `DEPRECATE_ASSET` | 호출 경로·차별점 모두 약함 — 폐기 권고로 사용자 confirm |
-| `NEEDS_REVIEW` | 근거가 부족하거나 추정이 많은 경우 — 사용자 입력 받기 |
-
-### 4b. Finding 적용 순서
-
-**각 finding 의 적용은 §2 의 시점 B gate (변경 요약 제시 → 사용자 명시 신호 → 수정) 를 거친다.** 아래 순위는 *어떤 finding 을 먼저 처리할지* 의 우선순위이며, gate 자체를 우회하지 않는다 — "적용 의무" 는 *순위가 높다* 는 뜻이지 *gate 생략* 의 뜻이 아니다.
-
-1. **P0 first** — 안전 / 데이터 / destructive / 숨은 외부 송신. 최우선 처리.
-2. **P1** — 라우팅(matcher) / 권한 / 차단 vs advisory 충돌 / input handling 결함. 다음 우선.
-3. **P2** — 품질·반복 비용 (matcher 가 약간 넓음, state 산재). 사용자 위임 가능 (기본 적용 권장).
-4. **P3** — 보고만 하고 적용은 선택으로 둔다.
-
-각 finding 의 `Recommendation` 필드를 따른다. evidence 가 약하거나 `AMBIGUITY` 면 사용자 확인 후 진행.
-
-### 4c. Re-run gate
-
-수정 후 §3 재실행. 라운드 카운트 증가.
-
-- 3 라운드까지: 평소 흐름.
-- 3 라운드 초과: §0 의 *책임* 정의로 복귀 — 책임 모호가 진짜 원인. 또는 자원 타입이 잘못 잡혔는지 (hook 이 아닌 skill/agent/CLAUDE.md) 재검토.
-- 5 라운드 초과: 사용자에게 보고하고 NEEDS_REVIEW 로 종료.
-
-### 4d. GUIDE_GAP 처리
-
-자산이 좋은데 가이드가 잡지 못해 false positive 가 나오면 (`GUIDE_GAP`): 자산은 수정하지 *말고* 사용자에게 보고. 가이드 보완은 본 스킬 범위 밖 (다음 v3 사이클의 입력).
+라운드 5 초과 시 `creator-gap-eval` 이 `NEEDS_REVIEW` 반환 (round_count 한도). Finding 적용 / Re-run gate / GUIDE_GAP 의 상세 절차는 `creator-gap-eval/SKILL.md` Phase 7-9 와 `references/resource-type-matrix.md` 의 자원별 분기 행 참조.
 
 ## 5. Output to caller
 
